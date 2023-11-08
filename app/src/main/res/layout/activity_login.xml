@@ -44,6 +44,9 @@
                  android:layout_marginTop="24dp"
                  android:background="@drawable/bg_edittext"
                  android:padding="12dp"
+                 android:inputType="textPassword"
+                 android:drawableRight="@drawable/ic_visibility"
+                 app:passwordToggleEnabled="true"
                  android:hint="Clave de internet de 6 dígitos"
                  android:textColor="@android:color/white"
                  android:textColorHint="@android:color/white"/>

@@ -6,7 +6,9 @@ plugins {
 android {
     namespace 'com.pe.simswappingsimulator'
     compileSdk 33
-
+    viewBinding {
+        enabled = true
+    }
     defaultConfig {
         applicationId "com.pe.simswappingsimulator"
         minSdk 29
@@ -38,6 +40,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.10.0'
 
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
