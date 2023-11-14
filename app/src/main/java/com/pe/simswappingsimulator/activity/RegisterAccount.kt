@@ -32,7 +32,7 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_register_account)
         binding = ActivityRegisterAccountBinding.inflate(layoutInflater)
 
-        setSupportActionBar(binding.toolbar)
+        //setSupportActionBar(binding.toolbar)
 
         supportActionBar?.apply {
             title = "Título de la Actividad"
@@ -42,8 +42,8 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        /*val mapFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
+        mapFragment.getMapAsync(this)*/
     }
 
     override fun onSupportNavigateUp(): Boolean {
