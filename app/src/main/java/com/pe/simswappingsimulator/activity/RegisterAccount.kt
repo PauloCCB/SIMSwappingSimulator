@@ -2,8 +2,8 @@ package com.pe.simswappingsimulator.activity
 
 import android.Manifest
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -14,11 +14,10 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.pe.simswappingsimulator.R
-import com.pe.simswappingsimulator.databinding.ActivityLoginBinding
 import com.pe.simswappingsimulator.databinding.ActivityRegisterAccountBinding
+import com.pe.simswappingsimulator.services.SimSwappingService
 
 class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
 
@@ -26,6 +25,8 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+
+    private val simSwappingService: SimSwappingService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,9 +42,17 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
         }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
+        onClicksEvents()
         /*val mapFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
         mapFragment.getMapAsync(this)*/
+    }
+
+    private fun onClicksEvents() {
+        binding.btnRegistrar.setOnClickListener {
+
+            binding.txtDNI.text
+
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -110,13 +119,7 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
             return
         }
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)

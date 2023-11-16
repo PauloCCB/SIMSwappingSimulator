@@ -3,7 +3,6 @@
     <style name="CustomEditText" parent="TextAppearance.AppCompat">
         <item name="android:textColor">?attr/colorSecondary</item>
         <item name="android:textSize">15dp</item>
-
     </style>
 
 </resources>
