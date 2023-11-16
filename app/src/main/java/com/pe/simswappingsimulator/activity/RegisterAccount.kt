@@ -34,6 +34,7 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
         binding = ActivityRegisterAccountBinding.inflate(layoutInflater)
 
         //setSupportActionBar(binding.toolbar)
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         supportActionBar?.apply {
             title = "Título de la Actividad"

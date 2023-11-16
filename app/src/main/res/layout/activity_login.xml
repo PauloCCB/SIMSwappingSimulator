@@ -32,10 +32,16 @@
             <EditText
                 android:id="@+id/etCreditCard"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:background="@drawable/bg_edittext"
                 android:padding="12dp"
-                android:layout_marginTop="32dp"/>
+                android:drawableStart="@drawable/ic_people"
+                android:drawablePadding="2dp"
+                android:layout_marginTop="32dp"
+                android:hint="Nro cuenta"
+                android:textColor="@android:color/white"
+                android:textColorHint="#B8BECC"
+                />
 
              <EditText
                  android:id="@+id/etPassword"
@@ -44,7 +50,7 @@
                  android:layout_marginTop="24dp"
                  android:background="@drawable/bg_edittext"
                  android:padding="12dp"
-                 android:inputType="textPassword"
+                 android:inputType="textPassword|number"
                  android:drawableRight="@drawable/ic_visibility"
                  app:passwordToggleEnabled="true"
                  android:hint="Clave de internet de 6 dígitos"
