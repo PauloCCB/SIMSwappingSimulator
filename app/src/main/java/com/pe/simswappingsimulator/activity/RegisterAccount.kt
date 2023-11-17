@@ -34,12 +34,10 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_register_account)
         binding = ActivityRegisterAccountBinding.inflate(layoutInflater)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = "Registrar cuenta"
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         supportActionBar?.apply {
-            title = "Título de la Actividad"
+            title = "Registrar cuenta"
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }

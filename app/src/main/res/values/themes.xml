@@ -14,10 +14,12 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="ActionBarTheme" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/purple_700</item>
+    <style name="ActionBarTheme" parent="Theme.MaterialComponents.DayNight">
+        <item name="colorPrimary">@color/colorDF8744</item>
         <item name="colorPrimaryDark">@color/purple_700</item>
         <item name="colorAccent">@color/purple_700</item>
+
+        <item name="android:textColorPrimary">@color/white</item>
 
         <item name="colorSecondary">@color/white</item>
     </style>
