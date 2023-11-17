@@ -1,8 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="CustomEditText" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">?attr/colorSecondary</item>
-        <item name="android:textSize">15dp</item>
+    <style name="CustomEditText_1" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">14dp</item>
+        <item name="android:textColorHint">#B8BECC</item>
+        <item name="android:background">@drawable/bg_edittext</item>
+
     </style>
 
+    <style name="CustomTextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <!-- Puedes personalizar otros atributos según tus necesidades -->
+        <item name="boxStrokeColor">@android:color/darker_gray</item>
+        <item name="hintTextColor">@android:color/darker_gray</item>
+    </style>
+
+    <style name="CustomTextInputEditText" parent="Widget.AppCompat.EditText">
+        <!-- Puedes personalizar otros atributos según tus necesidades -->
+        <item name="android:background">@drawable/bg_edittext_style2</item>
+        <item name="android:textColor">@color/color7F879B</item>
+        <item name="android:textColorHint">@color/colorB8BECC</item>
+        <item name="android:layout_marginVertical">8dp</item>
+        <item name="android:paddingHorizontal">8dp</item>
+        <item name="android:paddingVertical">12dp</item>
+
+
+    </style>
 </resources>

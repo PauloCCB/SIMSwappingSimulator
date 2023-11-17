@@ -33,37 +33,35 @@
                 android:id="@+id/etCreditCard"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-                android:background="@drawable/bg_edittext"
+                style="@style/CustomEditText_1"
                 android:padding="12dp"
                 android:drawableStart="@drawable/ic_people"
                 android:drawablePadding="2dp"
                 android:layout_marginTop="32dp"
                 android:hint="Nro cuenta"
-                android:textColor="@android:color/white"
-                android:textColorHint="#B8BECC"
+                android:inputType="number"
                 />
 
              <EditText
                  android:id="@+id/etPassword"
                  android:layout_width="match_parent"
                  android:layout_height="wrap_content"
+                 style="@style/CustomEditText_1"
                  android:layout_marginTop="24dp"
-                 android:background="@drawable/bg_edittext"
                  android:padding="12dp"
                  android:inputType="textPassword|number"
                  android:drawableRight="@drawable/ic_visibility"
                  app:passwordToggleEnabled="true"
-                 android:hint="Clave de internet de 6 dígitos"
-                 android:textColor="@android:color/white"
-                 android:textColorHint="@android:color/white"/>
+                 android:hint="Clave de internet de 6 dígitos"/>
 
              <TextView
                  android:id="@+id/tvCreateAccount"
                  android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
+                 android:layout_height="42dp"
                  android:textColor="@android:color/white"
                  android:layout_gravity="right"
-                 android:layout_marginTop="24dp"
+                 android:gravity="center_vertical"
+                 android:layout_marginTop="8dp"
                  android:text="Registrar cuenta"/>
 
              <Button

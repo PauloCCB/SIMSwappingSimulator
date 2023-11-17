@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingHorizontal="12dp"
+    android:paddingTop="12dp"
+    android:background="@android:color/white"
     tools:context=".activity.RegisterAccount">
    <!-- <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -21,15 +23,7 @@
         android:id="@+id/tlNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre"
-        app:boxBackgroundColor="@android:color/white"
-        app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusTopStart="8dp"
-        app:boxStrokeColor="@android:color/darker_gray"
-        app:boxStrokeWidth="2dp"
+        style="@style/CustomTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -37,22 +31,17 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/txtNombre"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            style="@style/CustomTextInputEditText"
+            android:hint="Nombre"
+           />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tlApellido"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Apellido"
-        app:boxBackgroundColor="@android:color/white"
-        app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusTopStart="8dp"
-        app:boxStrokeColor="@android:color/darker_gray"
-        app:boxStrokeWidth="2dp"
+        style="@style/CustomTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tlNombre"
@@ -61,22 +50,16 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/txtApellido"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="match_parent"
+            android:hint="Apellido"
+            style="@style/CustomTextInputEditText"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tlCC"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nro cuenta corriente"
-        app:boxBackgroundColor="@android:color/white"
-        app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusTopStart="8dp"
-        app:boxStrokeColor="@android:color/darker_gray"
-        app:boxStrokeWidth="2dp"
+        style="@style/CustomTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tlApellido"
@@ -85,22 +68,17 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/txtCC"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            style="@style/CustomTextInputEditText"
+            android:hint="Nro cuenta corriente"
+            />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tlDNI"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="DNI"
-        app:boxBackgroundColor="@android:color/white"
-        app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusTopStart="8dp"
-        app:boxStrokeColor="@android:color/darker_gray"
-        app:boxStrokeWidth="2dp"
+        style="@style/CustomTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tlCC"
@@ -112,7 +90,8 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:maxLength="8"
-
+            style="@style/CustomTextInputEditText"
+            android:hint="DNI"
             />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -120,15 +99,7 @@
         android:id="@+id/tlPIN"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="PIN"
-        app:boxBackgroundColor="@android:color/white"
-        app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusTopStart="8dp"
-        app:boxStrokeColor="@android:color/darker_gray"
-        app:boxStrokeWidth="2dp"
+        style="@style/CustomTextInputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tlDNI"
@@ -140,6 +111,8 @@
             android:layout_height="wrap_content"
             android:inputType="number"
             android:maxLength="6"
+            style="@style/CustomTextInputEditText"
+            android:hint="PIN"
             />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -149,8 +122,9 @@
         android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="52dp"
-        android:gravity="center_horizontal"
+        android:gravity="center_horizontal|center_vertical"
         android:text="Registrar"
+        android:background="@drawable/bg_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

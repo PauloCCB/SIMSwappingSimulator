@@ -12,39 +12,102 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.pe.simswappingsimulator.R
 import com.pe.simswappingsimulator.databinding.ActivityLoginBinding
+import com.pe.simswappingsimulator.model.BodyLogin
+import com.pe.simswappingsimulator.services.SimSwappingService
+import com.pe.simswappingsimulator.util.Utils
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 class Login : AppCompatActivity(){
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var simSwappingService: SimSwappingService
+
+    private var latitude: Double = 0.0
+    private var longitude: Double = 0.0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         binding = ActivityLoginBinding.inflate(layoutInflater)
+        supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        val retrofit = Retrofit.Builder()
+            .baseUrl(Utils.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        simSwappingService = retrofit.create(SimSwappingService::class.java)
+
 
         val view = binding.root
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (checkLocationPermission()) {
-            requestLocation()
+            //requestLocation()
         } else {
             requestPermission()
         }
         setContentView(view)
         setOnClickListener()
 
-
     }
 
     private fun setOnClickListener() {
-        binding.btnLogin.setOnClickListener {
+        binding.tvCreateAccount.setOnClickListener {
             val intent = Intent(this@Login, RegisterAccount::class.java)
             startActivity(intent)
 
             // Agrega la animación de transición
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
+
+        binding.btnLogin.setOnClickListener {
+
+            val bodyLogin = BodyLogin(
+                binding.etCreditCard.text.toString(),
+                binding.etPassword.text.toString(),
+                latitude.toString(),
+                longitude.toString()
+            )
+
+            val call = simSwappingService.validateLogin(bodyLogin)
+
+            call!!.enqueue(object : Callback<Integer?> {
+                override fun onResponse(call: Call<Integer?>, response: Response<Integer?>) {
+                    if (response.isSuccessful) {
+                        val result = response.body()
+                        startAccountPanelActivity(result)
+                    } else {
+                        Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
+                        // Manejar el error
+                    }
+                }
+
+                override fun onFailure(call: Call<Integer?>, t: Throwable) {
+                    // Manejar el fallo en la comunicación
+                }
+            })
+
+
+
+
+
+        }
+    }
+
+    private fun startAccountPanelActivity(result: Integer?) {
+        /*val intent = Intent(this@Login, AccountPanel::class.java)
+        val bundle = Bundle()
+
+        bundle.putString("accountType", it.tipoCuenta)
+        bundle.putString("accountId", it.id.toString())
+
+        intent.putExtras(bundle)*/
     }
 
     private fun checkLocationPermission(): Boolean {
@@ -66,14 +129,14 @@ class Login : AppCompatActivity(){
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
-                    val latitude = location.latitude
-                    val longitude = location.longitude
-                    // Aquí puedes utilizar las variables latitude y longitude como desees
-                    Toast.makeText(
+                    latitude = location.latitude
+                    longitude = location.longitude
+
+                    /*Toast.makeText(
                         this,
                         "Latitud: $latitude, Longitud: $longitude",
                         Toast.LENGTH_SHORT
-                    ).show()
+                    ).show()*/
                 } ?: run {
                     Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
                 }

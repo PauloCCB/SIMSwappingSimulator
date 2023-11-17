@@ -30,10 +30,12 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setTheme(R.style.ActionBarTheme)
         setContentView(R.layout.activity_register_account)
         binding = ActivityRegisterAccountBinding.inflate(layoutInflater)
 
-        //setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Registrar cuenta"
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         supportActionBar?.apply {
@@ -44,8 +46,6 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         onClicksEvents()
-        /*val mapFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as SupportMapFragment
-        mapFragment.getMapAsync(this)*/
     }
 
     private fun onClicksEvents() {
