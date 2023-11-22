@@ -1,13 +1,19 @@
 package com.pe.simswappingsimulator.activity
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.android.gms.ads.identifier.AdvertisingIdClient
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import com.google.android.gms.common.GooglePlayServicesRepairableException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.pe.simswappingsimulator.R
@@ -20,6 +26,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 
 
 class Login : AppCompatActivity(){
@@ -30,6 +37,8 @@ class Login : AppCompatActivity(){
 
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
+
+    var imei = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +62,12 @@ class Login : AppCompatActivity(){
             requestPermission()
         }
         setContentView(view)
+
+        imei = getDeviceId(this)
+        if (!imei.isNotEmpty()) {
+            // Manejar el caso en el que no se pueda obtener el IMEI
+            imei = getAdvertisingId(this)
+        }
         setOnClickListener()
 
     }
@@ -72,7 +87,8 @@ class Login : AppCompatActivity(){
                 binding.etCreditCard.text.toString(),
                 binding.etPassword.text.toString(),
                 latitude.toString(),
-                longitude.toString()
+                longitude.toString(),
+                imei
             )
 
             val call = simSwappingService.validateLogin(bodyLogin)
@@ -90,6 +106,7 @@ class Login : AppCompatActivity(){
 
                 override fun onFailure(call: Call<Integer?>, t: Throwable) {
                     // Manejar el fallo en la comunicación
+                    Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
                 }
             })
 
@@ -174,4 +191,32 @@ class Login : AppCompatActivity(){
         const val PERMISSIONS_REQUEST_ACCESS_LOCATION = 1
     }
 
+    private fun getDeviceId(context: Context): String{
+        val telephonyManager = context.getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return telephonyManager.imei ?: ""
+        } else {
+            // Antes de Android Oreo, puedes obtener el IMEI de la siguiente manera
+            return telephonyManager.deviceId ?: ""
+        }
+
+    }
+
+    fun getAdvertisingId(context: Context): String {
+        var advertisingId = ""
+        try {
+            val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context.applicationContext)
+            advertisingId = adInfo.id
+        } catch (e: IOException) {
+            e.printStackTrace()
+            // Manejar la excepción
+        } catch (e: GooglePlayServicesNotAvailableException) {
+            // Manejar la excepción
+        } catch (e: GooglePlayServicesRepairableException) {
+            // Manejar la excepción
+        }
+
+        return advertisingId
+    }
 }
