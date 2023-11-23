@@ -1,5 +1,6 @@
 package com.pe.simswappingsimulator.activity
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -7,6 +8,7 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.telephony.TelephonyManager
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -19,8 +21,10 @@ import com.google.android.gms.location.LocationServices
 import com.pe.simswappingsimulator.R
 import com.pe.simswappingsimulator.databinding.ActivityLoginBinding
 import com.pe.simswappingsimulator.model.BodyLogin
+import com.pe.simswappingsimulator.module.ApiClient
 import com.pe.simswappingsimulator.services.SimSwappingService
 import com.pe.simswappingsimulator.util.Utils
+import com.pe.simswappingsimulator.util.UtilsShared
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -39,6 +43,10 @@ class Login : AppCompatActivity(){
     private var longitude: Double = 0.0
 
     var imei = ""
+
+    val permission = android.Manifest.permission.READ_PHONE_STATE
+    val requestCode = 1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,11 +71,17 @@ class Login : AppCompatActivity(){
         }
         setContentView(view)
 
-        imei = getDeviceId(this)
+
+        imei = UtilsShared.getSimulatedImei()
+        Log.d("IMEI-AdvertisingId",imei)
+        /*imei = getDeviceId(this)
+        Log.d("IMEI-DeviceId",imei)
+
         if (!imei.isNotEmpty()) {
-            // Manejar el caso en el que no se pueda obtener el IMEI
-            imei = getAdvertisingId(this)
-        }
+            imei = UtilsShared.getAdvertisingId(this)
+            Log.d("IMEI-AdvertisingId",imei)
+        }*/
+
         setOnClickListener()
 
     }
@@ -91,7 +105,7 @@ class Login : AppCompatActivity(){
                 imei
             )
 
-            val call = simSwappingService.validateLogin(bodyLogin)
+            val call = ApiClient.simSwappingService.validateLogin(bodyLogin)
 
             call!!.enqueue(object : Callback<Integer?> {
                 override fun onResponse(call: Call<Integer?>, response: Response<Integer?>) {
@@ -109,10 +123,6 @@ class Login : AppCompatActivity(){
                     Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
                 }
             })
-
-
-
-
 
         }
     }
@@ -143,6 +153,23 @@ class Login : AppCompatActivity(){
     }
 
     private fun requestLocation() {
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
@@ -192,6 +219,13 @@ class Login : AppCompatActivity(){
     }
 
     private fun getDeviceId(context: Context): String{
+        if (checkAndRequestPermission(context, android.Manifest.permission.READ_PHONE_STATE,requestCode)) {
+            // Si no se tienen los permisos, solicítalos
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_PHONE_STATE), 1)
+            // Puedes manejar la respuesta de permisos en el método onRequestPermissionsResult
+            // y llamar a getIMEI nuevamente si los permisos son otorgados
+            return ""
+        }
         val telephonyManager = context.getSystemService(TELEPHONY_SERVICE) as TelephonyManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -203,20 +237,23 @@ class Login : AppCompatActivity(){
 
     }
 
-    fun getAdvertisingId(context: Context): String {
-        var advertisingId = ""
-        try {
-            val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context.applicationContext)
-            advertisingId = adInfo.id
-        } catch (e: IOException) {
-            e.printStackTrace()
-            // Manejar la excepción
-        } catch (e: GooglePlayServicesNotAvailableException) {
-            // Manejar la excepción
-        } catch (e: GooglePlayServicesRepairableException) {
-            // Manejar la excepción
-        }
 
-        return advertisingId
+    fun checkAndRequestPermission(context: Context, permission: String, requestCode: Int): Boolean {
+        // Verificar si el permiso ya ha sido otorgado
+        val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            // El permiso ya ha sido otorgado
+            return true
+        } else {
+            // El permiso no ha sido otorgado, solicitarlo
+            ActivityCompat.requestPermissions(
+                context as Login,  // Reemplaza YourActivity con el nombre de tu actividad
+                arrayOf(permission),
+                requestCode
+            )
+            return false
+        }
     }
+
 }

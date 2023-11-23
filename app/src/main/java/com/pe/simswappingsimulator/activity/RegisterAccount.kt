@@ -2,7 +2,9 @@ package com.pe.simswappingsimulator.activity
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -17,16 +19,19 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.model.LatLng
 import com.pe.simswappingsimulator.R
 import com.pe.simswappingsimulator.databinding.ActivityRegisterAccountBinding
+import com.pe.simswappingsimulator.model.BodyAccount
+import com.pe.simswappingsimulator.module.ApiClient
 import com.pe.simswappingsimulator.services.SimSwappingService
+import com.pe.simswappingsimulator.util.UtilsShared
 
-class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
+class RegisterAccount : AppCompatActivity() {
 
     private lateinit var binding: ActivityRegisterAccountBinding
 
-    private lateinit var mMap: GoogleMap
+    //private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    private val simSwappingService: SimSwappingService? = null
+    private var latitud: Double = 0.0
+    private var longitud: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +39,8 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_register_account)
         binding = ActivityRegisterAccountBinding.inflate(layoutInflater)
 
+
+        setLatitudeLongitude()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         supportActionBar?.apply {
@@ -42,14 +49,63 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
             setDisplayShowHomeEnabled(true)
         }
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
         onClicksEvents()
+    }
+
+    private fun setLatitudeLongitude (){
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                location?.let {
+                    latitud = location.latitude
+                    longitud = location.longitude
+
+                    /*Toast.makeText(
+                        this,
+                        "Latitud: $latitude, Longitud: $longitude",
+                        Toast.LENGTH_SHORT
+                    ).show()*/
+                } ?: run {
+                    Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 
     private fun onClicksEvents() {
         binding.btnRegistrar.setOnClickListener {
 
-            binding.txtDNI.text
+            with(binding) {
+
+                val objBodyAccount = BodyAccount(
+                    txtDNI.text.toString(),
+                    txtNombre.text.toString(),
+                    txtApellido.text.toString(),
+                    txtCC.text.toString(),
+                    latitud.toString(),
+                    longitud.toString(),
+                    txtPIN.text.toString(),
+                )
+                ApiClient.simSwappingService.registerAccount(objBodyAccount)
+
+            }
+
 
         }
     }
@@ -60,7 +116,7 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-    override fun onMapReady(googleMap: GoogleMap) {
+    /*override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
         if (ContextCompat.checkSelfPermission(
@@ -77,9 +133,9 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
                 1
             )
         }
-    }
+    }*/
 
-    private fun enableMyLocation() {
+    /*private fun enableMyLocation() {
         mMap.isMyLocationEnabled = true
 
         // Obtener la ubicación actual
@@ -122,9 +178,9 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
-    }
+    }*/
 
-    override fun onRequestPermissionsResult(
+    /*override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
@@ -135,5 +191,5 @@ class RegisterAccount : AppCompatActivity(), OnMapReadyCallback {
                 enableMyLocation()
             }
         }
-    }
+    }*/
 }
