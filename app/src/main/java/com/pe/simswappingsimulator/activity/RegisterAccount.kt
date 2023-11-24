@@ -7,22 +7,12 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
 import com.pe.simswappingsimulator.R
 import com.pe.simswappingsimulator.databinding.ActivityRegisterAccountBinding
 import com.pe.simswappingsimulator.model.BodyAccount
 import com.pe.simswappingsimulator.module.ApiClient
-import com.pe.simswappingsimulator.services.SimSwappingService
-import com.pe.simswappingsimulator.util.UtilsShared
 
 class RegisterAccount : AppCompatActivity() {
 
@@ -101,6 +91,7 @@ class RegisterAccount : AppCompatActivity() {
                     latitud.toString(),
                     longitud.toString(),
                     txtPIN.text.toString(),
+                    null
                 )
                 ApiClient.simSwappingService.registerAccount(objBodyAccount)
 

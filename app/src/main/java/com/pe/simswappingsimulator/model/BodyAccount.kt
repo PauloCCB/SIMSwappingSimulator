@@ -7,5 +7,6 @@ data class BodyAccount(
     val cc: String,
     val latitude: String,
     val longitude: String,
-    val pin: String
+    val pin: String,
+    val telefono: String?
 )

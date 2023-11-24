@@ -96,7 +96,7 @@ class Login : AppCompatActivity(){
         }
 
         binding.btnLogin.setOnClickListener {
-
+            binding.btnLogin.isEnabled = false
             val bodyLogin = BodyLogin(
                 binding.etCreditCard.text.toString(),
                 binding.etPassword.text.toString(),
@@ -111,30 +111,32 @@ class Login : AppCompatActivity(){
                 override fun onResponse(call: Call<Integer?>, response: Response<Integer?>) {
                     if (response.isSuccessful) {
                         val result = response.body()
-                        startAccountPanelActivity(result)
+                        startHomeActivity(result)
                     } else {
                         Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
                         // Manejar el error
                     }
+                    binding.btnLogin.isEnabled = true
                 }
 
                 override fun onFailure(call: Call<Integer?>, t: Throwable) {
                     // Manejar el fallo en la comunicación
                     Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
+                    binding.btnLogin.isEnabled = true
                 }
             })
 
         }
     }
 
-    private fun startAccountPanelActivity(result: Integer?) {
-        /*val intent = Intent(this@Login, AccountPanel::class.java)
+    private fun startHomeActivity(result: Integer?) {
+        val intent = Intent(this@Login,Home::class.java)
         val bundle = Bundle()
 
-        bundle.putString("accountType", it.tipoCuenta)
-        bundle.putString("accountId", it.id.toString())
+        bundle.putString("accountType", result.)
+        bundle.putString("accountId", result.id.toString())
 
-        intent.putExtras(bundle)*/
+        intent.putExtras(bundle)
     }
 
     private fun checkLocationPermission(): Boolean {

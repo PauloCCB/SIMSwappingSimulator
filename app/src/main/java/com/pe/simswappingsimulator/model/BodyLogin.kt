@@ -5,6 +5,6 @@ data class BodyLogin (
     val pin: String,
     val latitude: String,
     val longitude: String,
-    val imei: String
+    val imei: String,
 
 )
