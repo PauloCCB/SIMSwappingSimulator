@@ -20,6 +20,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/txtNombre"
             android:layout_width="match_parent"
+            android:inputType="text"
             style="@style/CustomTextInputEditText"
             android:hint="Nombre"
            />
@@ -38,6 +39,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/txtApellido"
             android:layout_width="match_parent"
+            android:inputType="text"
             android:hint="Apellido"
             style="@style/CustomTextInputEditText"/>
     </com.google.android.material.textfield.TextInputLayout>
@@ -55,6 +57,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/txtCC"
             android:layout_width="match_parent"
+            android:inputType="number"
+            android:maxLength="12"
             style="@style/CustomTextInputEditText"
             android:hint="Nro cuenta corriente"
             />
@@ -108,6 +112,7 @@
         android:layout_marginBottom="52dp"
         android:gravity="center_horizontal|center_vertical"
         android:text="Registrar"
+        android:enabled="false"
         android:background="@drawable/bg_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

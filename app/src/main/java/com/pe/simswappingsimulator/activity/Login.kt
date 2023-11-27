@@ -50,26 +50,27 @@ class Login : AppCompatActivity(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        //setContentView(R.layout.activity_login)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
+        val view = binding.root
+        setContentView(view)
         val retrofit = Retrofit.Builder()
             .baseUrl(Utils.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-
         simSwappingService = retrofit.create(SimSwappingService::class.java)
 
 
-        val view = binding.root
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (checkLocationPermission()) {
-            //requestLocation()
+            //requestLocation()x
         } else {
             requestPermission()
         }
-        setContentView(view)
+
 
 
         imei = UtilsShared.getSimulatedImei()
@@ -90,25 +91,28 @@ class Login : AppCompatActivity(){
         binding.tvCreateAccount.setOnClickListener {
             val intent = Intent(this@Login, RegisterAccount::class.java)
             startActivity(intent)
-
-            // Agrega la animación de transición
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+            //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
 
         binding.btnLogin.setOnClickListener {
             binding.btnLogin.isEnabled = false
             val bodyLogin = BodyLogin(
+                null,
+                null,
+                null,
+                null,
                 binding.etCreditCard.text.toString(),
                 binding.etPassword.text.toString(),
                 latitude.toString(),
                 longitude.toString(),
-                imei
+                imei,
+                null
             )
 
             val call = ApiClient.simSwappingService.validateLogin(bodyLogin)
 
-            call!!.enqueue(object : Callback<Integer?> {
-                override fun onResponse(call: Call<Integer?>, response: Response<Integer?>) {
+            call!!.enqueue(object : Callback<BodyLogin?> {
+                override fun onResponse(call: Call<BodyLogin?>, response: Response<BodyLogin?>) {
                     if (response.isSuccessful) {
                         val result = response.body()
                         startHomeActivity(result)
@@ -119,7 +123,7 @@ class Login : AppCompatActivity(){
                     binding.btnLogin.isEnabled = true
                 }
 
-                override fun onFailure(call: Call<Integer?>, t: Throwable) {
+                override fun onFailure(call: Call<BodyLogin?>, t: Throwable) {
                     // Manejar el fallo en la comunicación
                     Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
                     binding.btnLogin.isEnabled = true
@@ -129,12 +133,20 @@ class Login : AppCompatActivity(){
         }
     }
 
-    private fun startHomeActivity(result: Integer?) {
+    private fun startHomeActivity(result: BodyLogin?) {
         val intent = Intent(this@Login,Home::class.java)
         val bundle = Bundle()
 
-        bundle.putString("accountType", result.)
-        bundle.putString("accountId", result.id.toString())
+        bundle.putInt("idUsuario", result?.id_usuario!!)
+        bundle.putString("nombre", result?.nombre)
+        bundle.putString("apellido", result?.apellido)
+        bundle.putString("dni", result?.dni)
+        bundle.putString("cc", result?.cc)
+        bundle.putString("telefono", result?.telefono)
+        bundle.putString("imei", result?.imei)
+        bundle.putString("latitud", result?.latitud)
+        bundle.putString("longitud", result?.longitud)
+
 
         intent.putExtras(bundle)
     }
