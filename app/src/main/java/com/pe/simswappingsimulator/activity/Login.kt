@@ -61,8 +61,6 @@ class Login : AppCompatActivity(){
             .build()
         simSwappingService = retrofit.create(SimSwappingService::class.java)
 
-
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (checkLocationPermission()) {
@@ -70,7 +68,6 @@ class Login : AppCompatActivity(){
         } else {
             requestPermission()
         }
-
 
 
         imei = UtilsShared.getSimulatedImei()
