@@ -19,6 +19,9 @@
         android:theme="@style/Theme.SimSwappingSimulator"
         tools:targetApi="31">
         <activity
+            android:name=".activity.TransferActivity"
+            android:exported="false" />
+        <activity
             android:name=".activity.Home"
             android:exported="false" />
         <activity
