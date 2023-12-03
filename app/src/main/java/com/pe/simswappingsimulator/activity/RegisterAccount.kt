@@ -121,9 +121,9 @@ class RegisterAccount : AppCompatActivity() {
                     )
                     val call = ApiClient.simSwappingService.registerAccount(objBodyAccount)
 
-                    call!!.enqueue(object : Callback<Int> {
+                    call!!.enqueue(object : Callback<String> {
 
-                        override fun onResponse(call: Call<Int>, response: Response<Int>) {
+                        override fun onResponse(call: Call<String>, response: Response<String>) {
 
                             if (response.isSuccessful ) {
                                 Toast.makeText(applicationContext,"Registro exitoso",Toast.LENGTH_SHORT).show()
@@ -134,7 +134,7 @@ class RegisterAccount : AppCompatActivity() {
                             }
                         }
 
-                        override fun onFailure(call: Call<Int>, t: Throwable) {
+                        override fun onFailure(call: Call<String>, t: Throwable) {
                             Log.d("error","Failure: ${t.printStackTrace()}")
                             Toast.makeText(applicationContext,"Failure: ${t.message}",Toast.LENGTH_SHORT).show()
                         }

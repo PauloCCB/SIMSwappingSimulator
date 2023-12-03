@@ -12,7 +12,7 @@ import retrofit2.http.Path;
 
 interface SimSwappingService {
     @POST("registerAccount")
-    fun registerAccount(@Body bodyAccount: BodyAccount): Call<Int>
+    fun registerAccount(@Body bodyAccount: BodyAccount): Call<String>
 
     @POST("validateLogin")
     fun validateLogin(@Body bodyLogin: BodyLogin): Call<BodyLogin?>?
