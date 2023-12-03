@@ -1,5 +1,6 @@
 package com.pe.simswappingsimulator.activity
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.pe.simswappingsimulator.R
@@ -18,7 +19,10 @@ class Home : AppCompatActivity() {
     }
 
     private fun setOnClickListeners() {
-        //btnTransferir
+        binding.btnTransferir.setOnClickListener {
+            val intent = Intent(this@Home, TransferActivity::class.java)
+            startActivity(intent)
+        }
 
     }
 }

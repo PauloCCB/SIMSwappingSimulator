@@ -13,5 +13,13 @@ class TransferActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityTransferBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_transfer)
+
+        supportActionBar?.apply {
+            title = "Transferir dinero"
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
+        }
     }
+
+
 }

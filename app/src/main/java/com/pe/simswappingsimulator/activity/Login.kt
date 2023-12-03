@@ -122,7 +122,8 @@ class Login : AppCompatActivity(){
 
                 override fun onFailure(call: Call<BodyLogin?>, t: Throwable) {
                     // Manejar el fallo en la comunicación
-                    Toast.makeText(applicationContext,"Error:${t.message}",Toast.LENGTH_SHORT).show()
+                    Log.e("Error:",t.message.toString())
+                    Toast.makeText(applicationContext,"Error:${t.message}",Toast.LENGTH_LONG).show()
                     binding.btnLogin.isEnabled = true
                 }
             })

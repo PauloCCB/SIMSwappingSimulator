@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ApiClient {
 
 
-    private const val BASE_URL = "http://ec2-3-22-236-186.us-east-2.compute.amazonaws.com:8080/WSSimSwapping-1.0/simswapping"
+    private const val BASE_URL = "http://ec2-3-22-236-186.us-east-2.compute.amazonaws.com:8080/WSSimSwapping-1.0/simswapping/"
     //private const val BASE_URL = "http://localhost:8080/" //PRD
 
     private val retrofit: Retrofit = Retrofit.Builder()
