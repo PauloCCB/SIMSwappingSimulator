@@ -17,7 +17,9 @@ import com.pe.simswappingsimulator.R
 import com.pe.simswappingsimulator.databinding.ActivityRegisterAccountBinding
 import com.pe.simswappingsimulator.model.BodyAccount
 import com.pe.simswappingsimulator.model.BodyLogin
+import com.pe.simswappingsimulator.model.ResponseAccount
 import com.pe.simswappingsimulator.module.ApiClient
+import com.pe.simswappingsimulator.util.UtilsShared
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -30,6 +32,7 @@ class RegisterAccount : AppCompatActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var latitud: Double = 0.0
     private var longitud: Double = 0.0
+    var imei =""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +41,8 @@ class RegisterAccount : AppCompatActivity() {
         binding = ActivityRegisterAccountBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        imei = UtilsShared.getSimulatedImei()
 
         setTextWatchers()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -117,24 +122,26 @@ class RegisterAccount : AppCompatActivity() {
                         latitud.toString(),
                         longitud.toString(),
                         txtPIN.text.toString(),
-                        null
+                        null,
+                        imei
+
                     )
                     val call = ApiClient.simSwappingService.registerAccount(objBodyAccount)
 
-                    call!!.enqueue(object : Callback<String> {
+                    call!!.enqueue(object : Callback<ResponseAccount> {
 
-                        override fun onResponse(call: Call<String>, response: Response<String>) {
+                        override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
 
                             if (response.isSuccessful ) {
-                                Toast.makeText(applicationContext,"Registro exitoso",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(applicationContext,response.body()!!.message,Toast.LENGTH_SHORT).show()
                                 startLoginActivity()
                             }else {
-                                Log.d("error","Error: ${response}")
+                                Log.d("error","Error: ${response.message()}")
                                 Toast.makeText(applicationContext,"Error: ${response}",Toast.LENGTH_SHORT).show()
                             }
                         }
 
-                        override fun onFailure(call: Call<String>, t: Throwable) {
+                        override fun onFailure(call: Call<ResponseAccount>, t: Throwable) {
                             Log.d("error","Failure: ${t.printStackTrace()}")
                             Toast.makeText(applicationContext,"Failure: ${t.message}",Toast.LENGTH_SHORT).show()
                         }

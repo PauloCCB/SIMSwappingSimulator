@@ -1,6 +1,7 @@
 package com.pe.simswappingsimulator.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -21,6 +22,7 @@ import com.google.android.gms.location.LocationServices
 import com.pe.simswappingsimulator.R
 import com.pe.simswappingsimulator.databinding.ActivityLoginBinding
 import com.pe.simswappingsimulator.model.BodyLogin
+import com.pe.simswappingsimulator.model.ResponseAccount
 import com.pe.simswappingsimulator.module.ApiClient
 import com.pe.simswappingsimulator.services.SimSwappingService
 import com.pe.simswappingsimulator.util.Utils
@@ -43,9 +45,18 @@ class Login : AppCompatActivity(){
     private var longitude: Double = 0.0
 
     var imei = ""
+    var phoneNumber = ""
 
-    val permission = android.Manifest.permission.READ_PHONE_STATE
     val requestCode = 1
+
+
+    val permissionsToCheck = arrayOf(
+        Manifest.permission.READ_PHONE_STATE,
+        Manifest.permission.READ_PHONE_NUMBERS,
+        Manifest.permission.INTERNET,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +80,8 @@ class Login : AppCompatActivity(){
             requestPermission()
         }
 
-
+        phoneNumber = UtilsShared.getPhoneNumber(this)
+        Log.d("telephonyManager",phoneNumber)
         imei = UtilsShared.getSimulatedImei()
         Log.d("IMEI-AdvertisingId",imei)
         /*imei = getDeviceId(this)
@@ -103,26 +115,24 @@ class Login : AppCompatActivity(){
                 latitude.toString(),
                 longitude.toString(),
                 imei,
-                null
+                phoneNumber
             )
 
             val call = ApiClient.simSwappingService.validateLogin(bodyLogin)
 
-            call!!.enqueue(object : Callback<BodyLogin?> {
-                override fun onResponse(call: Call<BodyLogin?>, response: Response<BodyLogin?>) {
-                    if (response.isSuccessful) {
-                        val result = response.body()
-                        startHomeActivity(result)
+            call!!.enqueue(object : Callback<ResponseAccount> {
+                override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
+                    if (response.isSuccessful && response.body()!!.success) {
+                        val result = response.body()?.usuario
+                        startHomeActivity(result!!)
                     } else {
-                        Toast.makeText(applicationContext,"Error",Toast.LENGTH_SHORT).show()
-                        // Manejar el error
+                        Toast.makeText(applicationContext,"${response.body()!!.message}",Toast.LENGTH_SHORT).show()
                     }
                     binding.btnLogin.isEnabled = true
                 }
 
-                override fun onFailure(call: Call<BodyLogin?>, t: Throwable) {
-                    // Manejar el fallo en la comunicación
-                    Log.e("Error:",t.message.toString())
+                override fun onFailure(call: Call<ResponseAccount>, t: Throwable) {
+                    Log.e("Error:",t.printStackTrace().toString())
                     Toast.makeText(applicationContext,"Error:${t.message}",Toast.LENGTH_LONG).show()
                     binding.btnLogin.isEnabled = true
                 }
@@ -131,41 +141,56 @@ class Login : AppCompatActivity(){
         }
     }
 
-    private fun startHomeActivity(result: BodyLogin?) {
+    private fun startHomeActivity(result: BodyLogin) {
         val intent = Intent(this@Login,Home::class.java)
         val bundle = Bundle()
 
-        bundle.putInt("idUsuario", result?.id_usuario!!)
-        bundle.putString("nombre", result?.nombre)
-        bundle.putString("apellido", result?.apellido)
-        bundle.putString("dni", result?.dni)
-        bundle.putString("cc", result?.cc)
-        bundle.putString("telefono", result?.telefono)
-        bundle.putString("imei", result?.imei)
-        bundle.putString("latitud", result?.latitud)
-        bundle.putString("longitud", result?.longitud)
+        bundle.putInt("idUsuario", result.id_usuario!!)
+        bundle.putString("nombre", result.nombre)
+        bundle.putString("apellido", result.apellido)
+        bundle.putString("dni", result.dni)
+        bundle.putString("cc", result.cc)
+        bundle.putString("telefono", result.telefono)
+        bundle.putString("imei", result.imei)
+        bundle.putString("latitud", result.latitud)
+        bundle.putString("longitud", result.longitud)
 
 
         intent.putExtras(bundle)
     }
 
     private fun checkLocationPermission(): Boolean {
-        return (ContextCompat.checkSelfPermission(
+
+        for (permission in permissionsToCheck) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false
+            }
+        }
+        return true
+       /* return (ContextCompat.checkSelfPermission(
             this,
             android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED)
+        ) == PackageManager.PERMISSION_GRANTED)*/
     }
 
     private fun requestPermission() {
         ActivityCompat.requestPermissions(
             this,
+            permissionsToCheck,
+            PERMISSION_REQUEST_CODE
+        )
+     /*   ActivityCompat.requestPermissions(
+            this,
             arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
             PERMISSIONS_REQUEST_ACCESS_LOCATION
-        )
+        )*/
     }
 
+
+
+    @SuppressLint("MissingPermission")
     private fun requestLocation() {
-        if (ActivityCompat.checkSelfPermission(
+        /*if (ActivityCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
@@ -181,7 +206,7 @@ class Login : AppCompatActivity(){
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             return
-        }
+        }*/
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
@@ -200,6 +225,25 @@ class Login : AppCompatActivity(){
     }
 
     override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        when (requestCode) {
+            PERMISSION_REQUEST_CODE -> {
+                if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                    // Todos los permisos fueron concedidos, puedes proceder con las operaciones
+                    // que requieran estos permisos
+                    phoneNumber = UtilsShared.getPhoneNumber(this)  //obtainPhoneNumber()
+                    requestLocation()
+                } else {
+                    // Al menos un permiso fue denegado, puedes informar al usuario o tomar otras medidas
+                }
+            }
+            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        }
+    }
+    /*override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
@@ -225,9 +269,12 @@ class Login : AppCompatActivity(){
             }
         }
     }
-
-    companion object {
+*/
+    /*companion object {
         const val PERMISSIONS_REQUEST_ACCESS_LOCATION = 1
+    }*/
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 1
     }
 
     private fun getDeviceId(context: Context): String{

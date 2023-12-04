@@ -8,5 +8,6 @@ data class BodyAccount(
     val latitude: String,
     val longitude: String,
     val pin: String,
-    val telefono: String?
+    val telefono: String?,
+    val imei: String?
 )
