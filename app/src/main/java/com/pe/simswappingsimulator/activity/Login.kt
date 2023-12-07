@@ -5,9 +5,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.fingerprint.FingerprintManager
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
@@ -33,12 +36,17 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import java.security.KeyStore
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
 
 
 class Login : AppCompatActivity(){
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var fingerprintManager: FingerprintManager
     private lateinit var simSwappingService: SimSwappingService
 
     private var latitude: Double = 0.0
@@ -72,6 +80,7 @@ class Login : AppCompatActivity(){
             .build()
         simSwappingService = retrofit.create(SimSwappingService::class.java)
 
+        fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (checkLocationPermission()) {
@@ -96,6 +105,18 @@ class Login : AppCompatActivity(){
 
     }
 
+    private fun validateFingerSecurity(){
+
+
+        if (fingerprintManager.isHardwareDetected && fingerprintManager.hasEnrolledFingerprints()) {
+            // El dispositivo tiene un sensor de huella digital y al menos una huella registrada
+            // Continuar con la autenticación de huella digital
+        } else {
+            // El dispositivo no tiene un sensor de huella digital o no hay huellas registradas
+            Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     private fun setOnClickListener() {
         binding.tvCreateAccount.setOnClickListener {
             val intent = Intent(this@Login, RegisterAccount::class.java)
@@ -105,40 +126,92 @@ class Login : AppCompatActivity(){
 
         binding.btnLogin.setOnClickListener {
             binding.btnLogin.isEnabled = false
-            val bodyLogin = BodyLogin(
-                null,
-                null,
-                null,
-                null,
-                binding.etCreditCard.text.toString(),
-                binding.etPassword.text.toString(),
-                latitude.toString(),
-                longitude.toString(),
-                imei,
-                phoneNumber
-            )
 
-            val call = ApiClient.simSwappingService.validateLogin(bodyLogin)
+            if (fingerprintManager.isHardwareDetected && fingerprintManager.hasEnrolledFingerprints()) {
+                // El dispositivo tiene un sensor de huella digital y al menos una huella registrada
+                // Continuar con la autenticación de huella digital
+                showFingerAuthentication()
+                doLogin()
+            } else {
+                // El dispositivo no tiene un sensor de huella digital o no hay huellas registradas
+                Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
+            }
 
-            call!!.enqueue(object : Callback<ResponseAccount> {
-                override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
-                    if (response.isSuccessful && response.body()!!.success) {
-                        val result = response.body()?.usuario
-                        startHomeActivity(result!!)
-                    } else {
-                        Toast.makeText(applicationContext,"${response.body()!!.message}",Toast.LENGTH_SHORT).show()
-                    }
-                    binding.btnLogin.isEnabled = true
-                }
 
-                override fun onFailure(call: Call<ResponseAccount>, t: Throwable) {
-                    Log.e("Error:",t.printStackTrace().toString())
-                    Toast.makeText(applicationContext,"Error:${t.message}",Toast.LENGTH_LONG).show()
-                    binding.btnLogin.isEnabled = true
-                }
-            })
 
         }
+    }
+
+    private fun showFingerAuthentication() {
+        val keyStore = KeyStore.getInstance("AndroidKeyStore")
+        keyStore.load(null)
+
+        val keyGenerator =
+            KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+        val keyGenParameterSpec = KeyGenParameterSpec.Builder(
+            "your_key_alias",
+            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+        )
+            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+            .setUserAuthenticationRequired(true)
+            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+            .build()
+
+        keyGenerator.init(keyGenParameterSpec)
+        keyGenerator.generateKey()
+
+        val cipher = Cipher.getInstance(
+            KeyProperties.KEY_ALGORITHM_AES + "/" +
+                    KeyProperties.BLOCK_MODE_CBC + "/" +
+                    KeyProperties.ENCRYPTION_PADDING_PKCS7
+        )
+        cipher.init(Cipher.ENCRYPT_MODE, keyStore.getKey("your_key_alias", null) as SecretKey)
+
+        val cryptoObject = FingerprintManager.CryptoObject(cipher)
+        val authenticationCallback =
+            MyAuthenticationCallback(applicationContext) // Crea tu propia implementación de FingerprintManager.AuthenticationCallback
+
+        val fingerprintDialog = FingerprintDialogFragment.newInstance(
+            cryptoObject,
+            authenticationCallback
+        )
+        fingerprintDialog.show(supportFragmentManager, FingerprintDialogFragment.TAG)
+
+    }
+
+    private fun doLogin() {
+        val bodyLogin = BodyLogin(
+            null,
+            null,
+            null,
+            null,
+            binding.etCreditCard.text.toString(),
+            binding.etPassword.text.toString(),
+            latitude.toString(),
+            longitude.toString(),
+            imei,
+            phoneNumber
+        )
+
+        val call = ApiClient.simSwappingService.validateLogin(bodyLogin)
+
+        call!!.enqueue(object : Callback<ResponseAccount> {
+            override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
+                if (response.isSuccessful && response.body()!!.success) {
+                    val result = response.body()?.usuario
+                    startHomeActivity(result!!)
+                } else {
+                    Toast.makeText(applicationContext,"${response.body()!!.message}",Toast.LENGTH_SHORT).show()
+                }
+                binding.btnLogin.isEnabled = true
+            }
+
+            override fun onFailure(call: Call<ResponseAccount>, t: Throwable) {
+                Log.e("Error:",t.printStackTrace().toString())
+                Toast.makeText(applicationContext,"Error:${t.message}",Toast.LENGTH_LONG).show()
+                binding.btnLogin.isEnabled = true
+            }
+        })
     }
 
     private fun startHomeActivity(result: BodyLogin) {
