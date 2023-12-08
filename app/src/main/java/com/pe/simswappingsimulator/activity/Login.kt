@@ -207,7 +207,12 @@ class Login : AppCompatActivity(){
                     val result = response.body()?.usuario
                     startHomeActivity(result!!)
                 } else {
-                    Toast.makeText(applicationContext,"${response.body()!!.message}",Toast.LENGTH_SHORT).show()
+                    CustomConfirmationDialog(this@Login)
+                        .showConfirmationDialog(
+                            UtilsShared.CONFIRMATION_TITLE,
+                            "${response.body()!!.message}",
+                            "Ok"){}
+                    //Toast.makeText(applicationContext,"${response.body()!!.message}",Toast.LENGTH_SHORT).show()
                 }
                 binding.btnLogin.isEnabled = true
             }
