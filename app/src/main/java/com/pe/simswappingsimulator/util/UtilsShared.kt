@@ -11,6 +11,7 @@ import java.io.IOException
 
 object UtilsShared {
 
+   val CONFIRMATION_TITLE = "Mensaje del sistema"
     fun getSimulatedImei(): String {
         return "123456789012345" // Puedes establecer el valor que desees
     }

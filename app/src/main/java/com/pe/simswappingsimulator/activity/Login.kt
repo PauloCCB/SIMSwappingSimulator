@@ -133,11 +133,17 @@ class Login : AppCompatActivity(){
                 showFingerAuthentication()
                 doLogin()
             } else {
+
+                CustomConfirmationDialog(applicationContext).showConfirmationDialog(
+                    UtilsShared.CONFIRMATION_TITLE,
+                    "No hay un sensor de huella digital o no hay huellas registradas.",
+                    "Ok"
+                ) {
+                    binding.btnLogin.isEnabled = true
+                }
                 // El dispositivo no tiene un sensor de huella digital o no hay huellas registradas
-                Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
             }
-
-
 
         }
     }

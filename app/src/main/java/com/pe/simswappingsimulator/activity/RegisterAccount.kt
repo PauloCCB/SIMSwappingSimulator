@@ -129,14 +129,14 @@ class RegisterAccount : AppCompatActivity() {
                         override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
 
                             if (response.isSuccessful ) {
-                                Toast.makeText(applicationContext,response.body()!!.message,Toast.LENGTH_SHORT).show()
+                                //Toast.makeText(applicationContext,response.body()!!.message,Toast.LENGTH_SHORT).show()
 
                                 val confirmationDialog = CustomConfirmationDialog(applicationContext)
 
                                 confirmationDialog.showConfirmationDialog(
-                                    "Mensaje del sistema",
+                                    UtilsShared.CONFIRMATION_TITLE,
                                     response.body()!!.message,
-                                    "Sí"
+                                    "Ok"
                                 ) {
                                     startLoginActivity()
                                 }
