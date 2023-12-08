@@ -130,7 +130,17 @@ class RegisterAccount : AppCompatActivity() {
 
                             if (response.isSuccessful ) {
                                 Toast.makeText(applicationContext,response.body()!!.message,Toast.LENGTH_SHORT).show()
-                                startLoginActivity()
+
+                                val confirmationDialog = CustomConfirmationDialog(applicationContext)
+
+                                confirmationDialog.showConfirmationDialog(
+                                    "Mensaje del sistema",
+                                    response.body()!!.message,
+                                    "Sí"
+                                ) {
+                                    startLoginActivity()
+                                }
+
                             }else {
                                 Log.d("error","Error: ${response.message()}")
                                 Toast.makeText(applicationContext,"Error: ${response}",Toast.LENGTH_SHORT).show()
