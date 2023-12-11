@@ -2,6 +2,7 @@ package com.pe.simswappingsimulator.services
 
 import com.pe.simswappingsimulator.model.BodyAccount
 import com.pe.simswappingsimulator.model.BodyLogin
+import com.pe.simswappingsimulator.model.BodyOperation
 import com.pe.simswappingsimulator.model.ResponseAccount
 import retrofit2.Call;
 import retrofit2.Response
@@ -19,4 +20,7 @@ interface SimSwappingService {
     @POST("validateLogin")
     fun validateLogin(@Body bodyLogin: BodyLogin): Call<ResponseAccount>?
     //fun validateLogin(@Path("cc") cc: String,@Path("pin") passcode:String,): Call<Integer?>?
+
+    @POST("createOperation")
+    fun registerOperation(@Body bodyOperation: BodyOperation): Call<Int>
 }

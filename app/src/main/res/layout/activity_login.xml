@@ -49,9 +49,10 @@
                  style="@style/CustomEditText_1"
                  android:layout_marginTop="24dp"
                  android:padding="12dp"
-                 android:inputType="textPassword|number"
+                 android:inputType="textPassword"
                  android:drawableRight="@drawable/ic_visibility"
                  app:passwordToggleEnabled="true"
+                 android:imeOptions="actionDone"
                  android:hint="Clave de internet de 6 dígitos"/>
 
              <TextView

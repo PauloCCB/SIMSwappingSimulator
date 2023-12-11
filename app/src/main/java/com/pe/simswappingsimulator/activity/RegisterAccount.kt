@@ -131,7 +131,7 @@ class RegisterAccount : AppCompatActivity() {
                             if (response.isSuccessful ) {
                                 //Toast.makeText(applicationContext,response.body()!!.message,Toast.LENGTH_SHORT).show()
 
-                                val confirmationDialog = CustomConfirmationDialog(applicationContext)
+                                val confirmationDialog = CustomConfirmationDialog(this@RegisterAccount)
 
                                 confirmationDialog.showConfirmationDialog(
                                     UtilsShared.CONFIRMATION_TITLE,

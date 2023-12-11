@@ -17,12 +17,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.ads.identifier.AdvertisingIdClient
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException
-import com.google.android.gms.common.GooglePlayServicesRepairableException
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.pe.simswappingsimulator.R
 import com.pe.simswappingsimulator.databinding.ActivityLoginBinding
 import com.pe.simswappingsimulator.model.BodyLogin
 import com.pe.simswappingsimulator.model.ResponseAccount
@@ -35,7 +31,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -134,7 +129,7 @@ class Login : AppCompatActivity(){
                 doLogin()
             } else {
 
-                CustomConfirmationDialog(applicationContext).showConfirmationDialog(
+                CustomConfirmationDialog(this@Login).showConfirmationDialog(
                     UtilsShared.CONFIRMATION_TITLE,
                     "No hay un sensor de huella digital o no hay huellas registradas.",
                     "Ok"
@@ -204,8 +199,8 @@ class Login : AppCompatActivity(){
         call!!.enqueue(object : Callback<ResponseAccount> {
             override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
                 if (response.isSuccessful && response.body()!!.success) {
-                    val result = response.body()?.usuario
-                    startHomeActivity(result!!)
+                    //val result = .usuario
+                    startHomeActivity(response.body()!!)
                 } else {
                     CustomConfirmationDialog(this@Login)
                         .showConfirmationDialog(
@@ -225,19 +220,23 @@ class Login : AppCompatActivity(){
         })
     }
 
-    private fun startHomeActivity(result: BodyLogin) {
+    private fun startHomeActivity(result: ResponseAccount) {
         val intent = Intent(this@Login,Home::class.java)
         val bundle = Bundle()
+        val objUsuario = result.usuario
+        val objCuenta = result.cuenta
+        bundle.putInt("idUsuario", objUsuario.id_usuario!!)
+        bundle.putString("nombre", objUsuario.nombre)
+        bundle.putString("apellido", objUsuario.apellido)
+        bundle.putString("dni", objUsuario.dni)
+        bundle.putString("cc", objUsuario.cc)
+        bundle.putString("telefono", objUsuario.telefono)
+        bundle.putString("imei", objUsuario.imei)
+        bundle.putString("latitud", objUsuario.latitud)
+        bundle.putString("longitud", objUsuario.longitud)
 
-        bundle.putInt("idUsuario", result.id_usuario!!)
-        bundle.putString("nombre", result.nombre)
-        bundle.putString("apellido", result.apellido)
-        bundle.putString("dni", result.dni)
-        bundle.putString("cc", result.cc)
-        bundle.putString("telefono", result.telefono)
-        bundle.putString("imei", result.imei)
-        bundle.putString("latitud", result.latitud)
-        bundle.putString("longitud", result.longitud)
+        bundle.putInt("idCuenta", objCuenta.id_cuenta)
+        bundle.putDouble("saldo", objCuenta.saldo)
 
 
         intent.putExtras(bundle)
