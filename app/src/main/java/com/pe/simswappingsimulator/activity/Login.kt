@@ -145,12 +145,13 @@ class Login : AppCompatActivity(){
 
     private fun showFingerAuthentication() {
         val keyStore = KeyStore.getInstance("AndroidKeyStore")
+        //val keyStore = KeyStore.getInstance("key_simswapping")
         keyStore.load(null)
 
         val keyGenerator =
             KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
         val keyGenParameterSpec = KeyGenParameterSpec.Builder(
-            "your_key_alias",
+            "key_simswapping",
             KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
         )
             .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
@@ -166,7 +167,7 @@ class Login : AppCompatActivity(){
                     KeyProperties.BLOCK_MODE_CBC + "/" +
                     KeyProperties.ENCRYPTION_PADDING_PKCS7
         )
-        cipher.init(Cipher.ENCRYPT_MODE, keyStore.getKey("your_key_alias", null) as SecretKey)
+        cipher.init(Cipher.ENCRYPT_MODE, keyStore.getKey("key_simswapping", null) as SecretKey)
 
         val cryptoObject = FingerprintManager.CryptoObject(cipher)
         val authenticationCallback =

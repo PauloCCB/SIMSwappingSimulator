@@ -23,7 +23,7 @@ object UtilsShared {
         var advertisingId = ""
         try {
             val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context.applicationContext)
-            advertisingId = adInfo.id
+            advertisingId = adInfo.id.toString()
         } catch (e: IOException) {
             e.printStackTrace()
             // Manejar la excepción

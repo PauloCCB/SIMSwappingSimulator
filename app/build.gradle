@@ -23,12 +23,13 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable true
         }
-        debug {
+        /*debug {
             applicationIdSuffix ".debug"
             versionNameSuffix "-debug"
             debuggable true
-        }
+        }*/
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -53,12 +54,17 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.1'
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 
+    implementation 'com.google.firebase:firebase-crashlytics:17.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.1'
 
     implementation 'com.google.android.gms:play-services-ads-identifier:17.1.0'
 
+    implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-crashlytics-ktx'
+    implementation 'com.google.firebase:firebase-analytics-ktx'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+
 }
