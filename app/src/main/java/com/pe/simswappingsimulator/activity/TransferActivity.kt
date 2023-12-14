@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.pe.simswappingsimulator.R
 import com.pe.simswappingsimulator.databinding.ActivityTransferBinding
 import com.pe.simswappingsimulator.model.BodyOperation
@@ -25,8 +26,11 @@ class TransferActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setTheme(R.style.ActionBarTheme)
         binding = ActivityTransferBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_transfer)
+        val view = binding.root
+        setContentView(view)
+        /*setContentView(R.layout.activity_transfer)*/
         initView()
         supportActionBar?.apply {
             title = "Transferir dinero"
@@ -34,7 +38,7 @@ class TransferActivity : AppCompatActivity() {
             setDisplayShowHomeEnabled(true)
         }
 
-
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
@@ -86,5 +90,10 @@ class TransferActivity : AppCompatActivity() {
             )
             val call = ApiClient.simSwappingService.registerOperation(bodyOperation)
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }

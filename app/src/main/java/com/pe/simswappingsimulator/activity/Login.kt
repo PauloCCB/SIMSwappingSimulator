@@ -126,8 +126,7 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
                     fingerprintDialog.show(supportFragmentManager, FingerprintDialogFragment.TAG)
 
                     fingerprintDialog.startAuthentication(cipher, fingerprintManager)
-                    /*showFingerprintDialog(cryptoObject, authenticationCallback,supportFragmentManager)
-                    fingerprintDialog.startAuthentication()*/
+
                 }else {
 
                     CustomConfirmationDialog(this@Login).showConfirmationDialog(
@@ -141,13 +140,7 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
                     //Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
                 }
             }
-            /*if (fingerprintManager.isHardwareDetected && fingerprintManager.hasEnrolledFingerprints()) {
-                // El dispositivo tiene un sensor de huella digital y al menos una huella registrada
-                // Continuar con la autenticación de huella digital
-                showFingerAuthentication()
 
-                //doLogin()
-            } */
 
         }
     }
@@ -209,25 +202,31 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
 
         call!!.enqueue(object : Callback<ResponseAccount> {
             override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
-                if (response.isSuccessful && response.body()!!.success) {
-                    //val result = .usuario
-                    startHomeActivity(response.body()!!)
-                } else {
-                    if(response.code() == 500) {
-                        CustomConfirmationDialog(this@Login)
-                            .showConfirmationDialog(
-                                UtilsShared.CONFIRMATION_TITLE,
-                                "Error interno del servidor, por favor reintente luego",
-                                "Ok"){}
-                    }else {
-                        CustomConfirmationDialog(this@Login)
-                            .showConfirmationDialog(
-                                UtilsShared.CONFIRMATION_TITLE,
-                                "${response.body()!!.message}",
-                                "Ok"){}
-                    }
+                Log.d("onResponse validateLogin",response.body().toString())
+                try{
 
-                    //Toast.makeText(applicationContext,"${response.body()!!.message}",Toast.LENGTH_SHORT).show()
+                    if (response.isSuccessful && response.body()!!.success) {
+                        //val result = .usuario
+                        startHomeActivity(response.body()!!)
+                    } else {
+                        if(response.code() == 500) {
+                            CustomConfirmationDialog(this@Login)
+                                .showConfirmationDialog(
+                                    UtilsShared.CONFIRMATION_TITLE,
+                                    "Error interno del servidor, por favor reintente luego",
+                                    "Ok"){}
+                        }else {
+                            CustomConfirmationDialog(this@Login)
+                                .showConfirmationDialog(
+                                    UtilsShared.CONFIRMATION_TITLE,
+                                    "${response.body()!!.message}",
+                                    "Ok"){}
+                        }
+
+                        //Toast.makeText(applicationContext,"${response.body()!!.message}",Toast.LENGTH_SHORT).show()
+                    }
+                }catch (e: Exception){
+                    Log.d("ERRvalidateLogin",e.printStackTrace().toString())
                 }
                 binding.btnLogin.isEnabled = true
             }
@@ -260,6 +259,7 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
 
 
         intent.putExtras(bundle)
+        startActivity(intent)
     }
 
     private fun checkLocationPermission(): Boolean {
@@ -284,34 +284,13 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
 
     @SuppressLint("MissingPermission")
     private fun requestLocation() {
-        /*if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return
-        }*/
+
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
                     latitude = location.latitude
                     longitude = location.longitude
 
-                    /*Toast.makeText(
-                        this,
-                        "Latitud: $latitude, Longitud: $longitude",
-                        Toast.LENGTH_SHORT
-                    ).show()*/
                 } ?: run {
                     Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
                 }
@@ -337,36 +316,7 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
             else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
-    /*override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when (requestCode) {
-            PERMISSIONS_REQUEST_ACCESS_LOCATION -> {
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    // Permiso concedido, solicitar la ubicación
-                    requestLocation()
-                } else {
-                    // Permiso denegado, manejar según sea necesario
-                    Toast.makeText(
-                        this,
-                        "Permiso de ubicación denegado",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                return
-            }
-            else -> {
-                // Ignore all other requests.
-            }
-        }
-    }
-*/
-    /*companion object {
-        const val PERMISSIONS_REQUEST_ACCESS_LOCATION = 1
-    }*/
+
     companion object {
         private const val PERMISSION_REQUEST_CODE = 1
     }
@@ -375,8 +325,6 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
         if (checkAndRequestPermission(context, android.Manifest.permission.READ_PHONE_STATE,requestCode)) {
             // Si no se tienen los permisos, solicítalos
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_PHONE_STATE), 1)
-            // Puedes manejar la respuesta de permisos en el método onRequestPermissionsResult
-            // y llamar a getIMEI nuevamente si los permisos son otorgados
             return ""
         }
         val telephonyManager = context.getSystemService(TELEPHONY_SERVICE) as TelephonyManager
@@ -399,7 +347,6 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
             // El permiso ya ha sido otorgado
             return true
         } else {
-            // El permiso no ha sido otorgado, solicitarlo
             ActivityCompat.requestPermissions(
                 context as Login,  // Reemplaza YourActivity con el nombre de tu actividad
                 arrayOf(permission),
@@ -410,7 +357,9 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
     }
 
     override fun onAuthenticationSuccess() {
+        Toast.makeText(this@Login,"Autenticación exitosa.",Toast.LENGTH_SHORT).show()
         doLogin()
+
     }
 
     override fun onAuthenticationError(errorMessage: String) {
@@ -426,15 +375,11 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
         runOnUiThread {
             binding.btnLogin.isEnabled = true
             Toast.makeText(this, "Autenticación fallida", Toast.LENGTH_SHORT).show()
-            // Puedes realizar acciones adicionales después de una autenticación fallida
         }
-        //Toast.makeText(this@Login,"No se pudo realizar la verificación",Toast.LENGTH_SHORT).show()
     }
 
     override fun onGetAdvertisingId(advertisingId: String) {
-        Log.d("before:",imei)
         imei = advertisingId
-        Log.d("after:",imei)
     }
 
 }

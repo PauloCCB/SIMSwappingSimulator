@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginHorizontal="24dp"
+    android:padding="24dp"
     tools:context=".activity.TransferActivity">
 
     <com.google.android.material.textfield.TextInputLayout
@@ -12,16 +12,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/CustomTextInputLayout"
+        android:hint="Ingresa cuenta BCP o interbancaria"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <EditText
             android:id="@+id/txtCuentaDestino"
             android:layout_width="match_parent"
-            android:inputType="text"
+            android:inputType="number"
             style="@style/CustomTextInputEditText"
-            android:hint="Ingresa cuenta BCP o interbancaria"
+
             />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -37,9 +38,9 @@
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/txtMonto"
             android:layout_width="match_parent"
-            android:inputType="text"
+            android:inputType="numberDecimal"
             style="@style/CustomTextInputEditText"
-            android:hint="Ingresa cuenta BCP o interbancaria"
+            android:hint="Monto a transferir"
             />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -63,6 +64,7 @@
         android:orientation="horizontal"
         android:padding="16dp"
         android:layout_marginTop="16dp"
+        android:background="@drawable/bg_edittext_style2"
         style="@style/CustomTextInputEditText"
         app:layout_constraintTop_toBottomOf="@+id/lblEnviarA"
         app:layout_constraintStart_toStartOf="parent"

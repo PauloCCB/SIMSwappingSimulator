@@ -26,6 +26,7 @@
         <activity
             android:name=".activity.TransferActivity"
             android:exported="false"
+            android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar"
             android:screenOrientation="portrait"/>
         <activity
             android:name=".activity.Home"
@@ -44,7 +45,6 @@
         <activity
             android:name=".activity.RegisterAccount"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar"
             android:screenOrientation="portrait"/>
     </application>
 

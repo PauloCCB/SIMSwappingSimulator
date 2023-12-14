@@ -1,23 +1,23 @@
 package com.pe.simswappingsimulator.activity
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
+import android.telephony.TelephonyManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.pe.simswappingsimulator.R
+import com.pe.simswappingsimulator.components.GetAdvertisingIdListener
+import com.pe.simswappingsimulator.components.GetAdvertisingIdTask
 import com.pe.simswappingsimulator.databinding.ActivityRegisterAccountBinding
 import com.pe.simswappingsimulator.model.BodyAccount
-import com.pe.simswappingsimulator.model.BodyLogin
 import com.pe.simswappingsimulator.model.ResponseAccount
 import com.pe.simswappingsimulator.module.ApiClient
 import com.pe.simswappingsimulator.util.UtilsShared
@@ -25,16 +25,16 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class RegisterAccount : AppCompatActivity() {
+class RegisterAccount : AppCompatActivity(), GetAdvertisingIdListener {
 
     private lateinit var binding: ActivityRegisterAccountBinding
 
-    //private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var latitud: Double = 0.0
     private var longitud: Double = 0.0
     var imei =""
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.ActionBarTheme)
@@ -43,7 +43,18 @@ class RegisterAccount : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        imei = UtilsShared.getSimulatedImei()
+        val telephonyManager = this@RegisterAccount.getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            imei = telephonyManager.imei ?: ""
+        } else {
+            // Antes de Android Oreo, puedes obtener el IMEI de la siguiente manera
+            imei = telephonyManager.deviceId ?: ""
+        }
+        if (imei.isNullOrEmpty()) {
+            val obtenerAdvertisingIdTask = GetAdvertisingIdTask(applicationContext,this@RegisterAccount)
+            obtenerAdvertisingIdTask.execute()
+        }
 
         setTextWatchers()
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -76,28 +87,13 @@ class RegisterAccount : AppCompatActivity() {
     }
     @SuppressLint("MissingPermission")
     private fun setLatitudeLongitude (){
-        /*if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
 
-            return
-        }*/
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
                     latitud = location.latitude
                     longitud = location.longitude
 
-                    /*Toast.makeText(
-                        this,
-                        "Latitud: $latitude, Longitud: $longitude",
-                        Toast.LENGTH_SHORT
-                    ).show()*/
                 } ?: run {
                     Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
                 }
@@ -188,81 +184,9 @@ class RegisterAccount : AppCompatActivity() {
         return true
     }
 
+    override fun onGetAdvertisingId(advertisingId: String) {
+        imei = advertisingId
+    }
 
-    /*override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
 
-        if (ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-        ) {
-            enableMyLocation()
-        } else {
-            // Solicitar permisos
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-                1
-            )
-        }
-    }*/
-
-    /*private fun enableMyLocation() {
-        mMap.isMyLocationEnabled = true
-
-        // Obtener la ubicación actual
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location ->
-                if (location != null) {
-                    val currentLocation = LatLng(location.latitude, location.longitude)
-                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15f))
-                }
-            }
-
-        // Configurar actualizaciones de ubicación en tiempo real
-        val locationRequest = LocationRequest.create()
-            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-            .setInterval(10000)
-            .setFastestInterval(5000)
-
-        val locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                super.onLocationResult(locationResult)
-                if (locationResult.lastLocation != null) {
-                    val updatedLocation = LatLng(
-                        locationResult.lastLocation.latitude,
-                        locationResult.lastLocation.longitude
-                    )
-                    // Hacer algo con la ubicación actualizada, si es necesario
-                }
-            }
-        }
-
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-
-            return
-        }
-        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
-    }*/
-
-    /*override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                enableMyLocation()
-            }
-        }
-    }*/
 }

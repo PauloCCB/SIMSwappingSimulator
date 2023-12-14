@@ -12,12 +12,13 @@
         <!-- Puedes personalizar otros atributos según tus necesidades -->
         <item name="boxStrokeColor">@android:color/darker_gray</item>
         <item name="hintTextColor">@android:color/darker_gray</item>
+
         <item name="android:paddingVertical">4dp</item>
     </style>
 
     <style name="CustomTextInputEditText" parent="Widget.AppCompat.EditText">
         <!-- Puedes personalizar otros atributos según tus necesidades -->
-        <item name="android:background">@drawable/bg_edittext_style2</item>
+        <!--<item name="android:background">@drawable/bg_edittext_style2</item>-->
         <item name="android:textColor">@color/color7F879B</item>
         <item name="android:textSize">13dp</item>
         <item name="android:textColorHint">@color/colorB8BECC</item>
