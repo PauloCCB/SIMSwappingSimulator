@@ -2,6 +2,7 @@ package com.pe.simswappingsimulator.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -19,6 +20,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.pe.simswappingsimulator.components.GetAdvertisingIdListener
+import com.pe.simswappingsimulator.components.GetAdvertisingIdTask
 import com.pe.simswappingsimulator.databinding.ActivityLoginBinding
 import com.pe.simswappingsimulator.model.BodyLogin
 import com.pe.simswappingsimulator.model.ResponseAccount
@@ -37,12 +40,14 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
 
-class Login : AppCompatActivity(){
+class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingIdListener {
 
     private lateinit var binding: ActivityLoginBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var fingerprintManager: FingerprintManager
     private lateinit var simSwappingService: SimSwappingService
+
+    private lateinit var fingerprintManager: FingerprintManager
+    private lateinit var keyguardManager: KeyguardManager
 
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
@@ -78,39 +83,25 @@ class Login : AppCompatActivity(){
         fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        if (checkLocationPermission()) {
-            //requestLocation()x
-        } else {
+        if (!checkLocationPermission()) {
             requestPermission()
         }
 
         phoneNumber = UtilsShared.getPhoneNumber(this)
         Log.d("telephonyManager",phoneNumber)
-        imei = UtilsShared.getSimulatedImei()
-        Log.d("IMEI-AdvertisingId",imei)
-        /*imei = getDeviceId(this)
+        //imei = UtilsShared.getSimulatedImei()
+        //Log.d("IMEI-AdvertisingId",imei)
+        imei = getDeviceId(this)
         Log.d("IMEI-DeviceId",imei)
-
-        if (!imei.isNotEmpty()) {
-            imei = UtilsShared.getAdvertisingId(this)
-            Log.d("IMEI-AdvertisingId",imei)
-        }*/
+        if (imei.isNullOrEmpty()) {
+            val obtenerAdvertisingIdTask = GetAdvertisingIdTask(applicationContext,this@Login)
+            obtenerAdvertisingIdTask.execute()
+        }
 
         setOnClickListener()
 
     }
 
-    private fun validateFingerSecurity(){
-
-
-        if (fingerprintManager.isHardwareDetected && fingerprintManager.hasEnrolledFingerprints()) {
-            // El dispositivo tiene un sensor de huella digital y al menos una huella registrada
-            // Continuar con la autenticación de huella digital
-        } else {
-            // El dispositivo no tiene un sensor de huella digital o no hay huellas registradas
-            Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     private fun setOnClickListener() {
         binding.tvCreateAccount.setOnClickListener {
@@ -121,24 +112,42 @@ class Login : AppCompatActivity(){
 
         binding.btnLogin.setOnClickListener {
             binding.btnLogin.isEnabled = false
+            keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
 
-            if (fingerprintManager.isHardwareDetected && fingerprintManager.hasEnrolledFingerprints()) {
+            with(UtilsShared){
+                if (checkFingerprintCompatibility(this@Login,fingerprintManager,keyguardManager)) {
+                    val keyGenerator = getKeyGenerator()
+                    val cipher = getCipher(keyGenerator)
+                    val cryptoObject = FingerprintManager.CryptoObject(cipher)
+                    val authenticationCallback = MyAuthenticationCallback(this@Login,this@Login)
+
+                    val fingerprintDialog = FingerprintDialogFragment.newInstance(cryptoObject, authenticationCallback,this@Login)
+                    fingerprintDialog.show(supportFragmentManager, FingerprintDialogFragment.TAG)
+
+                    fingerprintDialog.startAuthentication(cipher, fingerprintManager)
+                    /*showFingerprintDialog(cryptoObject, authenticationCallback,supportFragmentManager)
+                    fingerprintDialog.startAuthentication()*/
+                }else {
+
+                    CustomConfirmationDialog(this@Login).showConfirmationDialog(
+                        UtilsShared.CONFIRMATION_TITLE,
+                        "Es necesario que cuente con un sensor de huella digital.",
+                        "Ok"
+                    ) {
+                        binding.btnLogin.isEnabled = true
+                    }
+                    // El dispositivo no tiene un sensor de huella digital o no hay huellas registradas
+                    //Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
+                }
+            }
+            /*if (fingerprintManager.isHardwareDetected && fingerprintManager.hasEnrolledFingerprints()) {
                 // El dispositivo tiene un sensor de huella digital y al menos una huella registrada
                 // Continuar con la autenticación de huella digital
                 showFingerAuthentication()
-                doLogin()
-            } else {
 
-                CustomConfirmationDialog(this@Login).showConfirmationDialog(
-                    UtilsShared.CONFIRMATION_TITLE,
-                    "No hay un sensor de huella digital o no hay huellas registradas.",
-                    "Ok"
-                ) {
-                    binding.btnLogin.isEnabled = true
-                }
-                // El dispositivo no tiene un sensor de huella digital o no hay huellas registradas
-                //Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
-            }
+                //doLogin()
+            } */
 
         }
     }
@@ -171,11 +180,12 @@ class Login : AppCompatActivity(){
 
         val cryptoObject = FingerprintManager.CryptoObject(cipher)
         val authenticationCallback =
-            MyAuthenticationCallback(applicationContext) // Crea tu propia implementación de FingerprintManager.AuthenticationCallback
+            MyAuthenticationCallback(applicationContext,this@Login) // Crea tu propia implementación de FingerprintManager.AuthenticationCallback
 
         val fingerprintDialog = FingerprintDialogFragment.newInstance(
             cryptoObject,
-            authenticationCallback
+            authenticationCallback,
+            this@Login
         )
         fingerprintDialog.show(supportFragmentManager, FingerprintDialogFragment.TAG)
 
@@ -203,11 +213,20 @@ class Login : AppCompatActivity(){
                     //val result = .usuario
                     startHomeActivity(response.body()!!)
                 } else {
-                    CustomConfirmationDialog(this@Login)
-                        .showConfirmationDialog(
-                            UtilsShared.CONFIRMATION_TITLE,
-                            "${response.body()!!.message}",
-                            "Ok"){}
+                    if(response.code() == 500) {
+                        CustomConfirmationDialog(this@Login)
+                            .showConfirmationDialog(
+                                UtilsShared.CONFIRMATION_TITLE,
+                                "Error interno del servidor, por favor reintente luego",
+                                "Ok"){}
+                    }else {
+                        CustomConfirmationDialog(this@Login)
+                            .showConfirmationDialog(
+                                UtilsShared.CONFIRMATION_TITLE,
+                                "${response.body()!!.message}",
+                                "Ok"){}
+                    }
+
                     //Toast.makeText(applicationContext,"${response.body()!!.message}",Toast.LENGTH_SHORT).show()
                 }
                 binding.btnLogin.isEnabled = true
@@ -251,10 +270,6 @@ class Login : AppCompatActivity(){
             }
         }
         return true
-       /* return (ContextCompat.checkSelfPermission(
-            this,
-            android.Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED)*/
     }
 
     private fun requestPermission() {
@@ -263,11 +278,6 @@ class Login : AppCompatActivity(){
             permissionsToCheck,
             PERMISSION_REQUEST_CODE
         )
-     /*   ActivityCompat.requestPermissions(
-            this,
-            arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
-            PERMISSIONS_REQUEST_ACCESS_LOCATION
-        )*/
     }
 
 
@@ -397,6 +407,34 @@ class Login : AppCompatActivity(){
             )
             return false
         }
+    }
+
+    override fun onAuthenticationSuccess() {
+        doLogin()
+    }
+
+    override fun onAuthenticationError(errorMessage: String) {
+        binding.btnLogin.isEnabled = true
+        Toast.makeText(this@Login,"Error de autenticación: ${errorMessage}",Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onAuthenticationHelp(helpMessage: String) {
+        Toast.makeText(this@Login,"onAuthenticationHelp",Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onAuthenticationFailed() {
+        runOnUiThread {
+            binding.btnLogin.isEnabled = true
+            Toast.makeText(this, "Autenticación fallida", Toast.LENGTH_SHORT).show()
+            // Puedes realizar acciones adicionales después de una autenticación fallida
+        }
+        //Toast.makeText(this@Login,"No se pudo realizar la verificación",Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onGetAdvertisingId(advertisingId: String) {
+        Log.d("before:",imei)
+        imei = advertisingId
+        Log.d("after:",imei)
     }
 
 }
