@@ -4,6 +4,7 @@ import com.pe.simswappingsimulator.model.BodyAccount
 import com.pe.simswappingsimulator.model.BodyLogin
 import com.pe.simswappingsimulator.model.BodyOperation
 import com.pe.simswappingsimulator.model.ResponseAccount
+import com.pe.simswappingsimulator.model.ResponseOperation
 import retrofit2.Call;
 import retrofit2.Response
 import retrofit2.http.Body
@@ -22,5 +23,5 @@ interface SimSwappingService {
     //fun validateLogin(@Path("cc") cc: String,@Path("pin") passcode:String,): Call<Integer?>?
 
     @POST("createOperation")
-    fun registerOperation(@Body bodyOperation: BodyOperation): Call<Int>
+    fun registerOperation(@Body bodyOperation: BodyOperation): Call<ResponseOperation>
 }
