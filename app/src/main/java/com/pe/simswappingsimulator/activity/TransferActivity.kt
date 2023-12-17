@@ -2,6 +2,7 @@ package com.pe.simswappingsimulator.activity
 
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
+import android.content.Context
 import android.content.Intent
 import android.hardware.fingerprint.FingerprintManager
 import android.location.Location
@@ -50,6 +51,8 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
             setDisplayShowHomeEnabled(true)
         }
 
+        keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
@@ -181,7 +184,9 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
                 try{
 
                     if(response.body()!!.success){
-
+                        startHomeActivity()
+                    }else {
+                        Toast.makeText(this@TransferActivity,"Ocurrió un error, por favor vuelva a intentarlo",Toast.LENGTH_SHORT).show()
                     }
 
                 }catch (e: Exception) {
@@ -194,6 +199,29 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
                 binding.btnRegistrar.isEnabled = true
             }
         })
+    }
+
+    private fun startHomeActivity() {
+        val intent = Intent(this@TransferActivity,Home::class.java)
+        val bundle = Bundle()
+        /*val objUsuario = result.usuario
+        val objCuenta = result.cuenta
+        bundle.putInt("idUsuario", objUsuario.id_usuario!!)
+        bundle.putString("nombre", objUsuario.nombre)
+        bundle.putString("apellido", objUsuario.apellido)
+        bundle.putString("dni", objUsuario.dni)
+        bundle.putString("cc", objUsuario.cc)
+        bundle.putString("telefono", objUsuario.telefono)
+        bundle.putString("imei", objUsuario.imei)
+        bundle.putString("latitud", objUsuario.latitud)
+        bundle.putString("longitud", objUsuario.longitud)
+
+        bundle.putInt("idCuenta", objCuenta.id_cuenta)
+        bundle.putDouble("saldo", objCuenta.saldo)*/
+
+
+        intent.putExtras(bundle)
+        startActivity(intent)
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -1,7 +1,9 @@
 package com.pe.simswappingsimulator.activity
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +13,8 @@ import android.text.TextWatcher
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.pe.simswappingsimulator.R
@@ -33,8 +37,8 @@ class RegisterAccount : AppCompatActivity(), GetAdvertisingIdListener {
     private var latitud: Double = 0.0
     private var longitud: Double = 0.0
     var imei =""
+    val requestCode = 1
 
-    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setTheme(R.style.ActionBarTheme)
@@ -43,14 +47,8 @@ class RegisterAccount : AppCompatActivity(), GetAdvertisingIdListener {
         val view = binding.root
         setContentView(view)
 
-        val telephonyManager = this@RegisterAccount.getSystemService(TELEPHONY_SERVICE) as TelephonyManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            imei = telephonyManager.imei ?: ""
-        } else {
-            // Antes de Android Oreo, puedes obtener el IMEI de la siguiente manera
-            imei = telephonyManager.deviceId ?: ""
-        }
+        imei = getDeviceId(this@RegisterAccount)
         if (imei.isNullOrEmpty()) {
             val obtenerAdvertisingIdTask = GetAdvertisingIdTask(applicationContext,this@RegisterAccount)
             obtenerAdvertisingIdTask.execute()
@@ -70,6 +68,38 @@ class RegisterAccount : AppCompatActivity(), GetAdvertisingIdListener {
         onClicksEvents()
     }
 
+    private fun getDeviceId(context: Context): String{
+        if (checkAndRequestPermission(context, android.Manifest.permission.READ_PHONE_STATE,requestCode)) {
+            // Si no se tienen los permisos, solicítalos
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_PHONE_STATE), 1)
+            return ""
+        }
+        val telephonyManager = context.getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return telephonyManager.imei ?: ""
+        } else {
+            // Antes de Android Oreo, puedes obtener el IMEI de la siguiente manera
+            return telephonyManager.deviceId ?: ""
+        }
+
+    }
+    fun checkAndRequestPermission(context: Context, permission: String, requestCode: Int): Boolean {
+        // Verificar si el permiso ya ha sido otorgado
+        val permissionCheck = ContextCompat.checkSelfPermission(context, permission)
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            // El permiso ya ha sido otorgado
+            return true
+        } else {
+            ActivityCompat.requestPermissions(
+                context as Login,  // Reemplaza YourActivity con el nombre de tu actividad
+                arrayOf(permission),
+                requestCode
+            )
+            return false
+        }
+    }
     private fun setTextWatchers() {
         val textWatcher = object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
