@@ -186,6 +186,14 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
                     if(response.body()!!.success){
                         startHomeActivity()
                     }else {
+
+                        CustomConfirmationDialog(this@TransferActivity).showConfirmationDialog(
+                            UtilsShared.CONFIRMATION_TITLE,
+                            response.body()!!.message,
+                            "Ok"
+                        ) {
+                            binding.btnRegistrar.isEnabled = true
+                        }
                         Toast.makeText(this@TransferActivity,"Ocurrió un error, por favor vuelva a intentarlo",Toast.LENGTH_SHORT).show()
                     }
 
@@ -204,7 +212,7 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
     private fun startHomeActivity() {
         val intent = Intent(this@TransferActivity,Home::class.java)
         val bundle = Bundle()
-        /*val objUsuario = result.usuario
+       /* val objUsuario = generalExtras.usuario
         val objCuenta = result.cuenta
         bundle.putInt("idUsuario", objUsuario.id_usuario!!)
         bundle.putString("nombre", objUsuario.nombre)
@@ -217,8 +225,8 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         bundle.putString("longitud", objUsuario.longitud)
 
         bundle.putInt("idCuenta", objCuenta.id_cuenta)
-        bundle.putDouble("saldo", objCuenta.saldo)*/
-
+        bundle.putDouble("saldo", objCuenta.saldo)
+*/
 
         intent.putExtras(bundle)
         startActivity(intent)
