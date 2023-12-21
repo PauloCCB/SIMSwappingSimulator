@@ -212,7 +212,7 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
     private fun startHomeActivity() {
         val intent = Intent(this@TransferActivity,Home::class.java)
         val bundle = Bundle()
-       /* val objUsuario = generalExtras.usuario
+        /* val objUsuario = generalExtras.usuario
         val objCuenta = result.cuenta
         bundle.putInt("idUsuario", objUsuario.id_usuario!!)
         bundle.putString("nombre", objUsuario.nombre)
@@ -226,7 +226,7 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
         bundle.putInt("idCuenta", objCuenta.id_cuenta)
         bundle.putDouble("saldo", objCuenta.saldo)
-*/
+        */
 
         intent.putExtras(bundle)
         startActivity(intent)
