@@ -10,7 +10,6 @@ class GetAdvertisingIdTask(private val context: Context,
     override fun doInBackground(vararg params: Void?): String {
         return try {
             val advertisingId =  AdvertisingIdClient.getAdvertisingIdInfo(context)
-            Log.d("GetAdvertisingIdTask",advertisingId.toString())
             advertisingId.toString()
         } catch (e: Exception) {
             // Manejar la excepción según tus necesidades

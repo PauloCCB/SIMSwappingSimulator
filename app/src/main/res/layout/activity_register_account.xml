@@ -105,6 +105,14 @@
     </com.google.android.material.textfield.TextInputLayout>
 
 
+    <TextView
+        android:id="@+id/tvImei"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tlPIN"/>
+
     <Button
         android:id="@+id/btnRegistrar"
         android:layout_width="280dp"

@@ -52,6 +52,8 @@ class RegisterAccount : AppCompatActivity(), GetAdvertisingIdListener {
         if (imei.isNullOrEmpty()) {
             val obtenerAdvertisingIdTask = GetAdvertisingIdTask(applicationContext,this@RegisterAccount)
             obtenerAdvertisingIdTask.execute()
+        }else {
+            binding.tvImei.text = imei
         }
 
         setTextWatchers()
@@ -215,7 +217,9 @@ class RegisterAccount : AppCompatActivity(), GetAdvertisingIdListener {
     }
 
     override fun onGetAdvertisingId(advertisingId: String) {
+        Log.d("advertisingId:",advertisingId)
         imei = advertisingId
+        binding.tvImei.text = imei
     }
 
 

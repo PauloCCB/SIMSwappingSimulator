@@ -8,9 +8,12 @@ import android.hardware.fingerprint.FingerprintManager
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -37,6 +40,10 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
     private lateinit var fingerprintManager: FingerprintManager
     private lateinit var keyguardManager: KeyguardManager
+
+    private val handler = Handler(Looper.getMainLooper())
+    private var progressStatus = 0
+    private var isReadyToFinish = false
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -119,46 +126,82 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
         private fun setOnClickListener() {
         binding.btnRegistrar.setOnClickListener {
+            binding.btnRegistrar.isEnabled = false
+            if (!isReadyToFinish) {
+                binding.pgToken.visibility = View.VISIBLE
 
-            //1- Validar huella digital
-            with(UtilsShared) {
-                if (checkFingerprintCompatibility(
-                        this@TransferActivity,
-                        fingerprintManager,
-                        keyguardManager
-                    )
-                ) {
-                    val keyGenerator = getKeyGenerator()
-                    val cipher = getCipher(keyGenerator)
-                    val cryptoObject = FingerprintManager.CryptoObject(cipher)
-                    val authenticationCallback =
-                        MyAuthenticationCallback(this@TransferActivity, this@TransferActivity)
+                Thread {
+                    while (progressStatus < 100) {
+                        progressStatus += 1
 
-                    val fingerprintDialog = FingerprintDialogFragment.newInstance(
-                        cryptoObject,
-                        authenticationCallback,
-                        this@TransferActivity
-                    )
-                    fingerprintDialog.show(supportFragmentManager, FingerprintDialogFragment.TAG)
+                        // Actualizar la barra de progreso en el hilo principal
+                        handler.post {
+                            binding.pgToken.progress = progressStatus
+                        }
 
-                    fingerprintDialog.startAuthentication(cipher, fingerprintManager)
-
-                } else {
-
-                    CustomConfirmationDialog(this@TransferActivity).showConfirmationDialog(
-                        UtilsShared.CONFIRMATION_TITLE,
-                        "Es necesario que cuente con un sensor de huella digital.",
-                        "Ok"
-                    ) {
-                        binding.btnRegistrar.isEnabled = true
+                        try {
+                            // Agregar un retraso para simular una operación en curso
+                            Thread.sleep(50)
+                        } catch (e: InterruptedException) {
+                            e.printStackTrace()
+                        }
                     }
-                    // El dispositivo no tiene un sensor de huella digital o no hay huellas registradas
-                    //Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
+
+                    if (progressStatus == 100) {
+                        runOnUiThread {
+                            binding.btnRegistrar.text = "FINALIZAR"
+                            binding.txtMensajeToken.visibility = View.VISIBLE
+                            binding.txtToken.visibility = View.VISIBLE
+                            binding.txtExpira.visibility = View.VISIBLE
+                            binding.btnRegistrar.isEnabled = true
+                            isReadyToFinish = true
+                        }
+                    }
+
+                }.start()
+                binding.txtToken.text = generateTokenDigits(6)
+            } else {
+                //1- Validar huella digital
+                with(UtilsShared) {
+                    if (checkFingerprintCompatibility(
+                            this@TransferActivity,
+                            fingerprintManager,
+                            keyguardManager
+                        )
+                    ) {
+                        val keyGenerator = getKeyGenerator()
+                        val cipher = getCipher(keyGenerator)
+                        val cryptoObject = FingerprintManager.CryptoObject(cipher)
+                        val authenticationCallback =
+                            MyAuthenticationCallback(this@TransferActivity, this@TransferActivity)
+
+                        val fingerprintDialog = FingerprintDialogFragment.newInstance(
+                            cryptoObject,
+                            authenticationCallback,
+                            this@TransferActivity
+                        )
+                        fingerprintDialog.show(
+                            supportFragmentManager,
+                            FingerprintDialogFragment.TAG
+                        )
+
+                        fingerprintDialog.startAuthentication(cipher, fingerprintManager)
+
+                    } else {
+
+                        CustomConfirmationDialog(this@TransferActivity).showConfirmationDialog(
+                            UtilsShared.CONFIRMATION_TITLE,
+                            "Es necesario que cuente con un sensor de huella digital.",
+                            "Ok"
+                        ) {
+                            binding.btnRegistrar.isEnabled = true
+                        }
+                        // El dispositivo no tiene un sensor de huella digital o no hay huellas registradas
+                        //Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
-            //2- Solicitamos validación SMS en back
-
             //3- De ser válida el SMS registramos operacion en back
 
 
@@ -232,6 +275,18 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         startActivity(intent)
     }
 
+    fun generateTokenDigits(length: Int): String {
+        val random = java.util.Random()
+        val stringBuilder = StringBuilder(length)
+
+        repeat(length) {
+            val digit = random.nextInt(10)
+            stringBuilder.append(digit)
+        }
+
+        return stringBuilder.toString()
+    }
+
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
@@ -239,6 +294,7 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
     override fun onAuthenticationSuccess() {
         Toast.makeText(this@TransferActivity,"Autenticación exitosa.",Toast.LENGTH_SHORT).show()
+
         doRegisterOperation()
 
     }

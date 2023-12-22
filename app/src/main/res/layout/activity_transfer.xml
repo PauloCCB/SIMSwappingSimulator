@@ -102,13 +102,66 @@
     </LinearLayout>
 
 
+    <TextView
+        android:id="@+id/txtMensajeToken"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="52dp"
+        android:text="Tu token digital es el siguiente"
+        app:layout_constraintTop_toBottomOf="@+id/llCuentaOrigen"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <ProgressBar
+        android:id="@+id/pgToken"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginHorizontal="32dp"
+        android:max="100"
+        android:progress="0"
+        android:visibility="gone"
+        style="?android:attr/progressBarStyleHorizontal"
+        app:layout_constraintTop_toBottomOf="@+id/txtMensajeToken"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+
+
+    <TextView
+        android:id="@+id/txtToken"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textSize="24dp"
+        android:letterSpacing="0.7"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+        android:text="Expira en los proximos minutos"
+        tools:text="2513526"
+        app:layout_constraintTop_toBottomOf="@+id/pgToken"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/txtExpira"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginTop="16dp"
+        android:text="Tu token digital es el siguiente, expira en los proximos minutos"
+        app:layout_constraintTop_toBottomOf="@+id/txtToken"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
     <Button
         android:id="@+id/btnRegistrar"
         android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="52dp"
         android:gravity="center_horizontal|center_vertical"
-        android:text="FINALIZAR"
+        android:text="CONTINUAR"
         android:enabled="false"
         android:background="@drawable/bg_button"
         app:layout_constraintBottom_toBottomOf="parent"
