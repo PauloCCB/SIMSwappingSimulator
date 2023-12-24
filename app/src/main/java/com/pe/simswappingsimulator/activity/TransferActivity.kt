@@ -124,8 +124,20 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
     }
 
 
+        @SuppressLint("MissingPermission")
         private fun setOnClickListener() {
         binding.btnRegistrar.setOnClickListener {
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    location?.let {
+                        latitude = location.latitude
+                        longitude = location.longitude
+                        binding.txtLocation.text = "Latitud: ${latitude.toString()}  Longitud: ${longitude.toString()}"
+
+                    } ?: run {
+                        Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
+                    }
+                }
             binding.btnRegistrar.isEnabled = false
             if (!isReadyToFinish) {
                 binding.pgToken.visibility = View.VISIBLE
@@ -149,7 +161,7 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
                     if (progressStatus == 100) {
                         runOnUiThread {
-                            binding.btnRegistrar.text = "FINALIZAR"
+                            binding.btnRegistrar.text = "ENVIAR"
                             binding.txtMensajeToken.visibility = View.VISIBLE
                             binding.txtToken.visibility = View.VISIBLE
                             binding.txtExpira.visibility = View.VISIBLE
