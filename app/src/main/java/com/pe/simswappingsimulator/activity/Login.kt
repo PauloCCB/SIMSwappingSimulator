@@ -49,8 +49,8 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
     private lateinit var fingerprintManager: FingerprintManager
     private lateinit var keyguardManager: KeyguardManager
 
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
+    private var latitude: String = ""
+    private var longitude: String = ""
 
     var imei = ""
     var phoneNumber = ""
@@ -192,8 +192,8 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
             null,
             binding.etCreditCard.text.toString(),
             binding.etPassword.text.toString(),
-            latitude.toString(),
-            longitude.toString(),
+            latitude,
+            longitude,
             imei,
             phoneNumber
         )
@@ -288,8 +288,11 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
-                    latitude = location.latitude
-                    longitude = location.longitude
+                    latitude = String.format("%.8f", location.latitude)
+                    longitude = String.format("%.8f", location.longitude)
+
+                    //latitude = location.latitude
+                    //longitude = location.longitude
 
                 } ?: run {
                     Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()

@@ -35,8 +35,8 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
+    private var latitude: String = ""
+    private var longitude: String = ""
 
     private lateinit var fingerprintManager: FingerprintManager
     private lateinit var keyguardManager: KeyguardManager
@@ -64,8 +64,8 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
-                    latitude = location.latitude
-                    longitude = location.longitude
+                    latitude = String.format("%.8f", location.latitude)
+                    longitude = String.format("%.8f", location.longitude)
 
                 } ?: run {
                     Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
@@ -130,9 +130,10 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
             fusedLocationClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
                     location?.let {
-                        latitude = location.latitude
-                        longitude = location.longitude
-                        binding.txtLocation.text = "Latitud: ${latitude.toString()}  Longitud: ${longitude.toString()}"
+                        latitude = String.format("%.8f", location.latitude)
+                        longitude = String.format("%.8f", location.longitude)
+
+                        binding.txtLocation.text = "Latitud: ${latitude}  Longitud: ${longitude}"
 
                     } ?: run {
                         Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
@@ -267,6 +268,21 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
     private fun startHomeActivity() {
         val intent = Intent(this@TransferActivity,Home::class.java)
         val bundle = Bundle()
+
+        bundle.putInt("idUsuario", generalExtras.getInt("idUsuario"))
+        bundle.putString("nombre", generalExtras.getString("nombre"))
+        bundle.putString("apellido", generalExtras.getString("apellido"))
+        bundle.putString("dni", generalExtras.getString("dni"))
+        bundle.putString("cc", generalExtras.getString("cc").toString())
+        bundle.putString("imei", generalExtras.getString("imei").toString())
+        bundle.putString("latitud", latitude.toString())
+        bundle.putString("longitud", longitude.toString())
+        bundle.putInt("idCuenta", generalExtras.getInt("idCuenta"))
+
+        var nuevoSaldo = generalExtras.getDouble("saldo") - binding.txtMonto.text.toString().toDouble()
+        bundle.putDouble("saldo", nuevoSaldo)
+
+
         /* val objUsuario = generalExtras.usuario
         val objCuenta = result.cuenta
         bundle.putInt("idUsuario", objUsuario.id_usuario!!)
@@ -313,7 +329,7 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
     override fun onAuthenticationError(errorMessage: String) {
         binding.btnRegistrar.isEnabled = true
-        Toast.makeText(this@TransferActivity,"Error de autenticación: ${errorMessage}",Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@TransferActivity,"${errorMessage}",Toast.LENGTH_SHORT).show()
     }
 
     override fun onAuthenticationHelp(helpMessage: String) {
