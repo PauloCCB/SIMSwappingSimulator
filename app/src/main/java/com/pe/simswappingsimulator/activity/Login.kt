@@ -69,7 +69,6 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //setContentView(R.layout.activity_login)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         supportActionBar?.setDisplayHomeAsUpEnabled(false)
         val view = binding.root
