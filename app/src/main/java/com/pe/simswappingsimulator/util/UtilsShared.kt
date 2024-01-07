@@ -23,6 +23,7 @@ import javax.crypto.SecretKey
 object UtilsShared {
 
    val CONFIRMATION_TITLE = "Mensaje del sistema"
+    val RADIOUS_METER = 200.0
     fun getSimulatedImei(): String {
         return "123456789012345" // Puedes establecer el valor que desees
     }

@@ -47,7 +47,6 @@ class RegisterAccount : AppCompatActivity(), GetAdvertisingIdListener {
         val view = binding.root
         setContentView(view)
 
-
         imei = getDeviceId(this@RegisterAccount)
         if (imei.isNullOrEmpty()) {
             val obtenerAdvertisingIdTask = GetAdvertisingIdTask(applicationContext,this@RegisterAccount)
