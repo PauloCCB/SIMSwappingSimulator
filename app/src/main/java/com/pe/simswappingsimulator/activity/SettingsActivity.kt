@@ -73,19 +73,19 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        if (ContextCompat.checkSelfPermission(
+        /*if (ContextCompat.checkSelfPermission(
                 this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            obtenerUbicacionActual()
+            //obtenerUbicacionActual()
         } else {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
                 LOCATION_PERMISSION_REQUEST_CODE
             )
-        }
+        }*/
 
         //invocamos a la lista de ubicaciones segun id usuario
         /*val objUbicacion = Ubicaciones(
@@ -150,7 +150,7 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
 
             val initialLocation = LatLng(latitudInicial, longitudInicial)
             googleMap.moveCamera(
-                CameraUpdateFactory.newLatLngZoom(initialLocation, 16f)
+                CameraUpdateFactory.newLatLngZoom(initialLocation, 14f)
             )
 
             //Logica que permite agregar más marcadores y tomar su evento
@@ -166,7 +166,7 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
                     .title("Marcador Inicial")
 
             )
-            googleMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            googleMap.mapType = GoogleMap.MAP_TYPE_NORMAL
 
             // Habilita los controles de zoom
             googleMap.uiSettings.isZoomControlsEnabled = true
@@ -237,6 +237,35 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
         //Al realizar click sobre el marcador, podremos eliminar el punto
         //PENDIENTE DE REALIZACIÓN
         marker.remove()
+        val position: LatLng? = marker?.position
+        if (position != null) {
+            val latitud = position.latitude
+            val longitud = position.longitude
+
+                //Registramos ubicación
+            val objUbicacion = Ubicaciones(
+                id_ubicacion = 0,
+                id_usuario = generalExtras.getInt("idUsuario"),
+                latitud = latitud,
+                longitud = longitud,
+                estado = ""
+            )
+            val call = ApiClient.simSwappingService.registerLocation(objUbicacion)
+            call!!.enqueue(object : Callback<ResponseUbicaciones> {
+
+                override fun onResponse(call: Call<ResponseUbicaciones>, response: Response<ResponseUbicaciones>) {
+                    if (response.isSuccessful ) {
+                        setMarketWithOptions(googleMap, latitud,longitud)
+                    }else {
+                        Log.d("error","Error: ${response.message()}")
+                        Toast.makeText(applicationContext,"Error: ${response}",Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<ResponseUbicaciones>, t: Throwable) {
+                    Log.d("error", "Failure: ${t.printStackTrace()}")
+                }
+            })
+        }
         Toast.makeText(this, "Punto removido", Toast.LENGTH_SHORT).show()
         /*val position = marker.position
         val latitud = position.latitude

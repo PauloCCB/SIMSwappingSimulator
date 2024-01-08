@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.hardware.fingerprint.FingerprintManager
 import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -35,8 +37,8 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private var latitude: Double = 0.0
-    private var longitude: Double = 0.0
+    private var latitudeActual: Double = 0.0
+    private var longitudeActual: Double = 0.0
 
     private lateinit var fingerprintManager: FingerprintManager
     private lateinit var keyguardManager: KeyguardManager
@@ -60,19 +62,34 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
+        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            // El GPS está habilitado, puedes obtener la ubicación desde aquí.
+            val locationListener = object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    // La ubicación ha cambiado, puedes obtener la latitud y longitud aquí.
+                    latitudeActual = location.latitude
+                    longitudeActual = location.longitude
+                }
+
+                // Otros métodos de LocationListener
+            }
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10f, locationListener)
+        }
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        fusedLocationClient.lastLocation
+        /*fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
-                    latitude = location.latitude
-                    longitude = location.longitude
-                    /*latitude = String.format("%.8f", location.latitude)
-                    longitude = String.format("%.8f", location.longitude)*/
+                    latitudeActual = location.latitude
+                    longitudeActual = location.longitude
+                    *//*latitude = String.format("%.8f", location.latitude)
+                    longitude = String.format("%.8f", location.longitude)*//*
 
                 } ?: run {
                     Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
                 }
-            }
+            }*/
         setOnClickListener()
     }
 
@@ -129,20 +146,20 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         @SuppressLint("MissingPermission")
         private fun setOnClickListener() {
         binding.btnRegistrar.setOnClickListener {
-            fusedLocationClient.lastLocation
+            /*fusedLocationClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
                     location?.let {
-                        latitude = location.latitude
-                        longitude = location.longitude
-                        /*latitude = String.format("%.8f", location.latitude)
-                        longitude = String.format("%.8f", location.longitude)*/
+                        latitudeActual = location.latitude
+                        longitudeActual = location.longitude
+                        *//*latitude = String.format("%.8f", location.latitude)
+                        longitude = String.format("%.8f", location.longitude)*//*
 
-                        binding.txtLocation.text = "Latitud: ${latitude}  Longitud: ${longitude}"
+                        binding.txtLocation.text = "Latitud: ${latitudeActual}  Longitud: ${longitudeActual}"
 
                     } ?: run {
                         Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
                     }
-                }
+                }*/
             binding.btnRegistrar.isEnabled = false
             if (!isReadyToFinish) {
                 binding.pgToken.visibility = View.VISIBLE
@@ -234,8 +251,8 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
             cuenta_destino = binding.txtCuentaDestino.text.toString(),
             cuenta_origen = generalExtras!!.getString("cc").toString(),
             monto = binding.txtMonto.text.toString().toDouble(),
-            latitud = latitude,
-            longitud = longitude
+            latitud = latitudeActual,
+            longitud = longitudeActual
 
         )
         val call = ApiClient.simSwappingService.registerOperation(bodyOperation)
@@ -279,8 +296,8 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         bundle.putString("dni", generalExtras.getString("dni"))
         bundle.putString("cc", generalExtras.getString("cc").toString())
         bundle.putString("imei", generalExtras.getString("imei").toString())
-        bundle.putString("latitud", latitude.toString())
-        bundle.putString("longitud", longitude.toString())
+        bundle.putString("latitud", generalExtras.getString("latitud"))
+        bundle.putString("longitud", generalExtras.getString("longitud"))
         bundle.putInt("idCuenta", generalExtras.getInt("idCuenta"))
 
         var nuevoSaldo = generalExtras.getDouble("saldo") - binding.txtMonto.text.toString().toDouble()
