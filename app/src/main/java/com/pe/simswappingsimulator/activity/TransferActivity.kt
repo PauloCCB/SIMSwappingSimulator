@@ -35,8 +35,8 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
-    private var latitude: String = ""
-    private var longitude: String = ""
+    private var latitude: Double = 0.0
+    private var longitude: Double = 0.0
 
     private lateinit var fingerprintManager: FingerprintManager
     private lateinit var keyguardManager: KeyguardManager
@@ -64,8 +64,10 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
-                    latitude = String.format("%.8f", location.latitude)
-                    longitude = String.format("%.8f", location.longitude)
+                    latitude = location.latitude
+                    longitude = location.longitude
+                    /*latitude = String.format("%.8f", location.latitude)
+                    longitude = String.format("%.8f", location.longitude)*/
 
                 } ?: run {
                     Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
@@ -130,8 +132,10 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
             fusedLocationClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
                     location?.let {
-                        latitude = String.format("%.8f", location.latitude)
-                        longitude = String.format("%.8f", location.longitude)
+                        latitude = location.latitude
+                        longitude = location.longitude
+                        /*latitude = String.format("%.8f", location.latitude)
+                        longitude = String.format("%.8f", location.longitude)*/
 
                         binding.txtLocation.text = "Latitud: ${latitude}  Longitud: ${longitude}"
 

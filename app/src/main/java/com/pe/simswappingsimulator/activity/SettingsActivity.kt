@@ -202,8 +202,8 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
             val objUbicacion = Ubicaciones(
                 id_ubicacion = 0,
                 id_usuario = generalExtras.getInt("idUsuario"),
-                latitud = latitud.toString(),
-                longitud = longitud.toString(),
+                latitud = latitud,
+                longitud = longitud,
                 estado = ""
             )
             val call = ApiClient.simSwappingService.registerLocation(objUbicacion)

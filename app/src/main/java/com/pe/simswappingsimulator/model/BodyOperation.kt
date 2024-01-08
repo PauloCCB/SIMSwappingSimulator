@@ -6,7 +6,7 @@ data class BodyOperation (
     val monto: Double,
     val cuenta_destino: String,
     val cuenta_origen: String,
-    val latitud: String,
-    val longitud: String
+    val latitud: Double,
+    val longitud: Double
 
 )
