@@ -3,12 +3,16 @@ package com.pe.simswappingsimulator.activity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.location.Location
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -25,9 +29,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.pe.simswappingsimulator.R
-import com.pe.simswappingsimulator.databinding.ActivityHomeBinding
 import com.pe.simswappingsimulator.databinding.ActivitySettingsBinding
-import com.pe.simswappingsimulator.model.ResponseAccount
 import com.pe.simswappingsimulator.model.ResponseUbicaciones
 import com.pe.simswappingsimulator.model.Ubicaciones
 import com.pe.simswappingsimulator.module.ApiClient
@@ -35,6 +37,7 @@ import com.pe.simswappingsimulator.util.UtilsShared
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+
 
 class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,GoogleMap.OnMarkerClickListener {
 
@@ -73,19 +76,19 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        /*if (ContextCompat.checkSelfPermission(
+        if (ContextCompat.checkSelfPermission(
                 this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            //obtenerUbicacionActual()
+            obtenerUbicacionActual()
         } else {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
                 LOCATION_PERMISSION_REQUEST_CODE
             )
-        }*/
+        }
 
         //invocamos a la lista de ubicaciones segun id usuario
         /*val objUbicacion = Ubicaciones(
@@ -105,7 +108,7 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
                         lstUbicaciones = response.body()?.lstUbicaciones!!
                         //Por cada ubicacion registrada se debe pintar en el mapa
                         for (objUbicacion in lstUbicaciones){
-                            setMarkerIntoMap(objUbicacion.latitud!!.toDouble(), objUbicacion.longitud!!.toDouble())
+                            setMarkerIntoMap(objUbicacion.latitud!!.toDouble(), objUbicacion.longitud!!.toDouble(),false)
                         }
 
                     }else {
@@ -114,6 +117,7 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
                     }
                 }catch (e:Exception){
                     e.printStackTrace()
+                    Toast.makeText(applicationContext,"Error: ${e.message}",Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -132,14 +136,13 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
             .addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     // Utilizar la ubicación actual como latitudInicial y longitudInicial
-                   setMarkerIntoMap(location.latitude,location.longitude)
-
+                   setMarkerIntoMap(location.latitude,location.longitude,true)
 
                 }
             }
     }
 
-    private fun setMarkerIntoMap(latitudInicial: Double, longitudInicial: Double) {
+    private fun setMarkerIntoMap(latitudInicial: Double, longitudInicial: Double, defaultIcon: Boolean) {
 
         // Inicializar el mapa y configurarlo con la ubicación actual
         val mapFragment =
@@ -158,14 +161,26 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
             googleMap.setOnMarkerClickListener(this)
 
             //Marcador Inicial por ubicación actual
-            setMarketWithOptions(googleMap, latitudInicial, longitudInicial)
+            //setMarketWithOptions(googleMap, latitudInicial, longitudInicial)
 
-            googleMap.addMarker(
-                MarkerOptions()
-                    .position(initialLocation)
-                    .title("Marcador Inicial")
+            if(defaultIcon){
+                val vectorDrawable = ContextCompat.getDrawable(applicationContext, R.drawable.ic_default_location) // Reemplaza con tu recurso vectorial
+                // Convierte el vector a un mapa de bits
+                val bitmap = UtilsShared.vectorToBitmap(vectorDrawable)
+                //val bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_default_location)
+                googleMap.addMarker(
+                    MarkerOptions()
+                        .position(initialLocation)
+                        .title("Marcador Inicial")
+                        .icon(BitmapDescriptorFactory.fromBitmap(bitmap))
+                )
+            }else {
+                googleMap.addMarker(
+                    MarkerOptions()
+                        .position(initialLocation)
+                        .title("Marcador Inicial"))
+            }
 
-            )
             googleMap.mapType = GoogleMap.MAP_TYPE_NORMAL
 
             // Habilita los controles de zoom

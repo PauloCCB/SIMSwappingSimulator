@@ -3,6 +3,9 @@ package com.pe.simswappingsimulator.util
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.hardware.fingerprint.FingerprintManager
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
@@ -60,7 +63,7 @@ object UtilsShared {
     }
 
 
-    public fun checkFingerprintCompatibility(context: Context, fingerprintManager:FingerprintManager,  keyguardManager: KeyguardManager): Boolean {
+    fun checkFingerprintCompatibility(context: Context, fingerprintManager:FingerprintManager,  keyguardManager: KeyguardManager): Boolean {
         // Verificar la disponibilidad del hardware y si hay huellas dactilares registradas
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!fingerprintManager.isHardwareDetected || !fingerprintManager.hasEnrolledFingerprints()) {
@@ -81,7 +84,7 @@ object UtilsShared {
         return true
     }
 
-    public fun getKeyGenerator(): KeyGenerator {
+    fun getKeyGenerator(): KeyGenerator {
         // Configurar el generador de claves
         val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
         val keyGenParameterSpec = KeyGenParameterSpec.Builder(
@@ -99,7 +102,7 @@ object UtilsShared {
         return keyGenerator
     }
 
-    public fun getCipher(keyGenerator: KeyGenerator): Cipher {
+    fun getCipher(keyGenerator: KeyGenerator): Cipher {
         // Configurar el cifrado
         val keyStore = KeyStore.getInstance("AndroidKeyStore")
         keyStore.load(null)
@@ -114,4 +117,21 @@ object UtilsShared {
         return cipher
     }
 
+    fun vectorToBitmap(vectorDrawable: Drawable?): Bitmap {
+        if (vectorDrawable == null) {
+            throw IllegalArgumentException("VectorDrawable cannot be null")
+        }
+
+        val bitmap = Bitmap.createBitmap(
+            vectorDrawable.intrinsicWidth,
+            vectorDrawable.intrinsicHeight,
+            Bitmap.Config.ARGB_8888
+        )
+
+        val canvas = Canvas(bitmap)
+        vectorDrawable.setBounds(0, 0, canvas.width, canvas.height)
+        vectorDrawable.draw(canvas)
+
+        return bitmap
+    }
 }
