@@ -62,35 +62,42 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
-        val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            // El GPS está habilitado, puedes obtener la ubicación desde aquí.
-            val locationListener = object : LocationListener {
-                override fun onLocationChanged(location: Location) {
-                    // La ubicación ha cambiado, puedes obtener la latitud y longitud aquí.
-                    latitudeActual = location.latitude
-                    longitudeActual = location.longitude
-                }
+        try{
 
-                // Otros métodos de LocationListener
+
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                // El GPS está habilitado, puedes obtener la ubicación desde aquí.
+                val locationListener = object : LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        // La ubicación ha cambiado, puedes obtener la latitud y longitud aquí.
+                        latitudeActual = location.latitude
+                        longitudeActual = location.longitude
+                    }
+
+                    // Otros métodos de LocationListener
+                }
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10f, locationListener)
             }
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10f, locationListener)
+
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            /*fusedLocationClient.lastLocation
+                .addOnSuccessListener { location: Location? ->
+                    location?.let {
+                        latitudeActual = location.latitude
+                        longitudeActual = location.longitude
+                        *//*latitude = String.format("%.8f", location.latitude)
+                        longitude = String.format("%.8f", location.longitude)*//*
+
+                    } ?: run {
+                        Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
+                    }
+                }*/
+            setOnClickListener()
+
+        }catch (e: Exception){
+            Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
         }
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        /*fusedLocationClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                location?.let {
-                    latitudeActual = location.latitude
-                    longitudeActual = location.longitude
-                    *//*latitude = String.format("%.8f", location.latitude)
-                    longitude = String.format("%.8f", location.longitude)*//*
-
-                } ?: run {
-                    Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
-                }
-            }*/
-        setOnClickListener()
     }
 
     private fun initView() {
