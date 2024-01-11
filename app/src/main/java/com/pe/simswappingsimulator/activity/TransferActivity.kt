@@ -73,6 +73,7 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
                         // La ubicación ha cambiado, puedes obtener la latitud y longitud aquí.
                         latitudeActual = location.latitude
                         longitudeActual = location.longitude
+                        binding.txtLocation.text = "Latitud: ${latitudeActual}  Longitud: ${longitudeActual}"
                     }
 
                     // Otros métodos de LocationListener
@@ -153,6 +154,7 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         @SuppressLint("MissingPermission")
         private fun setOnClickListener() {
         binding.btnRegistrar.setOnClickListener {
+            //binding.txtLocation.text = "Latitud: ${latitudeActual}  Longitud: ${longitudeActual}"
             /*fusedLocationClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
                     location?.let {
