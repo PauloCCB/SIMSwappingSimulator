@@ -62,9 +62,8 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         try{
-
-
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 // El GPS está habilitado, puedes obtener la ubicación desde aquí.
@@ -81,7 +80,7 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10f, locationListener)
             }
 
-            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
             /*fusedLocationClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
                     location?.let {
@@ -154,6 +153,21 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         @SuppressLint("MissingPermission")
         private fun setOnClickListener() {
         binding.btnRegistrar.setOnClickListener {
+            val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                // El GPS está habilitado, puedes obtener la ubicación desde aquí.
+                val locationListener = object : LocationListener {
+                    override fun onLocationChanged(location: Location) {
+                        // La ubicación ha cambiado, puedes obtener la latitud y longitud aquí.
+                        latitudeActual = location.latitude
+                        longitudeActual = location.longitude
+                        binding.txtLocation.text = "Latitud: ${latitudeActual}  Longitud: ${longitudeActual}"
+                    }
+
+                    // Otros métodos de LocationListener
+                }
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 10f, locationListener)
+            }
             //binding.txtLocation.text = "Latitud: ${latitudeActual}  Longitud: ${longitudeActual}"
             /*fusedLocationClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
