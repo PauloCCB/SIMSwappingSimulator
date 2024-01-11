@@ -154,7 +154,6 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         @SuppressLint("MissingPermission")
         private fun setOnClickListener() {
         binding.btnRegistrar.setOnClickListener {
-            //binding.txtLocation.text = "Latitud: ${latitudeActual}  Longitud: ${longitudeActual}"
             /*fusedLocationClient.lastLocation
                 .addOnSuccessListener { location: Location? ->
                     location?.let {
