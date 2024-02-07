@@ -330,22 +330,6 @@ class TransferActivity : AppCompatActivity(),AuthenticationResultListener {
         bundle.putDouble("saldo", nuevoSaldo)
 
 
-        /* val objUsuario = generalExtras.usuario
-        val objCuenta = result.cuenta
-        bundle.putInt("idUsuario", objUsuario.id_usuario!!)
-        bundle.putString("nombre", objUsuario.nombre)
-        bundle.putString("apellido", objUsuario.apellido)
-        bundle.putString("dni", objUsuario.dni)
-        bundle.putString("cc", objUsuario.cc)
-        bundle.putString("telefono", objUsuario.telefono)
-        bundle.putString("imei", objUsuario.imei)
-        bundle.putString("latitud", objUsuario.latitud)
-        bundle.putString("longitud", objUsuario.longitud)
-
-        bundle.putInt("idCuenta", objCuenta.id_cuenta)
-        bundle.putDouble("saldo", objCuenta.saldo)
-        */
-
         intent.putExtras(bundle)
         startActivity(intent)
     }

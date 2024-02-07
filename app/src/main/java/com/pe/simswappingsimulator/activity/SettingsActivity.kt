@@ -51,6 +51,8 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
     private var polyline: Polyline? = null
 
     private lateinit var lstUbicaciones: List<Ubicaciones>
+    private var currentLongitud: Double = 0.0
+    private var currentLatitud: Double = 0.0
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -106,6 +108,7 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
                 try {
                     if (response.isSuccessful ) {
                         lstUbicaciones = response.body()?.lstUbicaciones!!
+                        markerCount = lstUbicaciones.size
                         //Por cada ubicacion registrada se debe pintar en el mapa
                         for (objUbicacion in lstUbicaciones){
                             setMarkerIntoMap(objUbicacion.latitud!!.toDouble(), objUbicacion.longitud!!.toDouble(),false)
@@ -136,6 +139,8 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
             .addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     // Utilizar la ubicación actual como latitudInicial y longitudInicial
+                    currentLatitud = location.latitude
+                    currentLongitud = location.longitude
                    setMarkerIntoMap(location.latitude,location.longitude,true)
 
                 }
@@ -167,7 +172,6 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
                 val vectorDrawable = ContextCompat.getDrawable(applicationContext, R.drawable.ic_default_location) // Reemplaza con tu recurso vectorial
                 // Convierte el vector a un mapa de bits
                 val bitmap = UtilsShared.vectorToBitmap(vectorDrawable)
-                //val bitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_default_location)
                 googleMap.addMarker(
                     MarkerOptions()
                         .position(initialLocation)
@@ -202,7 +206,7 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
     }
 
     override fun onMapClick(point: LatLng) {
-        if (markerCount < 2) {
+        if (markerCount <= 2) {
             // Añadir marcador
             googleMap.addMarker(MarkerOptions().position(point).title("Marcador ${markerCount + 1}"))
 
@@ -212,6 +216,8 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
             val latitud = point.latitude
             val longitud = point.longitude
 
+            // Incrementar el contador de marcadores
+            markerCount++
 
             //Registramos ubicación
             val objUbicacion = Ubicaciones(
@@ -237,51 +243,59 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
                 }
             })
 
-            // Incrementar el contador de marcadores
-            markerCount++
 
             // Si hay dos marcadores, dibujar una línea entre ellos
-            if (markerCount == 2) {
+            if (markerCount >= 2) {
                 drawPolyline()
             }
         } else {
-            Toast.makeText(this, "Ya has agregado los dos marcadores", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Alcanzaste el máximo de ubicaciones seguras.", Toast.LENGTH_SHORT).show()
         }
     }
     override fun onMarkerClick(marker: Marker): Boolean {
         //Al realizar click sobre el marcador, podremos eliminar el punto
         //PENDIENTE DE REALIZACIÓN
-        marker.remove()
+
         val position: LatLng? = marker?.position
         if (position != null) {
+
             val latitud = position.latitude
             val longitud = position.longitude
 
-                //Registramos ubicación
-            val objUbicacion = Ubicaciones(
-                id_ubicacion = 0,
-                id_usuario = generalExtras.getInt("idUsuario"),
-                latitud = latitud,
-                longitud = longitud,
-                estado = ""
-            )
-            val call = ApiClient.simSwappingService.registerLocation(objUbicacion)
-            call!!.enqueue(object : Callback<ResponseUbicaciones> {
 
-                override fun onResponse(call: Call<ResponseUbicaciones>, response: Response<ResponseUbicaciones>) {
-                    if (response.isSuccessful ) {
-                        setMarketWithOptions(googleMap, latitud,longitud)
-                    }else {
-                        Log.d("error","Error: ${response.message()}")
-                        Toast.makeText(applicationContext,"Error: ${response}",Toast.LENGTH_SHORT).show()
+            if(currentLatitud != latitud && currentLongitud != longitud){
+                markerCount--
+                marker.remove()
+
+                    //Registramos ubicación
+                val objUbicacion = Ubicaciones(
+                    id_ubicacion = 0,
+                    id_usuario = generalExtras.getInt("idUsuario"),
+                    latitud = latitud,
+                    longitud = longitud,
+                    estado = ""
+                )
+                val call = ApiClient.simSwappingService.registerLocation(objUbicacion)
+                call!!.enqueue(object : Callback<ResponseUbicaciones> {
+
+                    override fun onResponse(call: Call<ResponseUbicaciones>, response: Response<ResponseUbicaciones>) {
+                        if (response.isSuccessful ) {
+                            setMarketWithOptions(googleMap, latitud,longitud)
+                        }else {
+                            Log.d("error","Error: ${response.message()}")
+                            Toast.makeText(applicationContext,"Error: ${response}",Toast.LENGTH_SHORT).show()
+                        }
                     }
-                }
-                override fun onFailure(call: Call<ResponseUbicaciones>, t: Throwable) {
-                    Log.d("error", "Failure: ${t.printStackTrace()}")
-                }
-            })
+                    override fun onFailure(call: Call<ResponseUbicaciones>, t: Throwable) {
+                        Log.d("error", "Failure: ${t.printStackTrace()}")
+                    }
+                })
+            }
+            Toast.makeText(this, "Punto removido", Toast.LENGTH_SHORT).show()
+            return true
+        }else {
+            return false
         }
-        Toast.makeText(this, "Punto removido", Toast.LENGTH_SHORT).show()
         /*val position = marker.position
         val latitud = position.latitude
         val longitud = position.longitude*/
@@ -289,7 +303,7 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
         // Mostrar la información en un Toast
         //Toast.makeText(this, "Marcador seleccionado\nLatitud: $latitud\nLongitud: $longitud", Toast.LENGTH_SHORT).show()
 
-        return true
+
     }
 
     private fun drawPolyline() {
@@ -303,8 +317,10 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
         )
 
         // Ajustar la cámara para que todos los marcadores y la línea sean visibles
-        val bounds = LatLngBounds.builder().include(markers[0]).include(markers[1]).build()
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50))
+        if(markers.size > 1) {
+            val bounds = LatLngBounds.builder().include(markers[0]).include(markers[1]).build()
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50))
+        }
     }
 
     /* private fun googleMapsSettings() {
