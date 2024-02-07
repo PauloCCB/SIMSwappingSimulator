@@ -49,6 +49,8 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
     private lateinit var fingerprintManager: FingerprintManager
     private lateinit var keyguardManager: KeyguardManager
 
+    lateinit var fingerprintDialog: FingerprintDialogFragment
+
     private var latitude: String = ""
     private var longitude: String = ""
 
@@ -121,7 +123,7 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
                     val cryptoObject = FingerprintManager.CryptoObject(cipher)
                     val authenticationCallback = MyAuthenticationCallback(this@Login,this@Login)
 
-                    val fingerprintDialog = FingerprintDialogFragment.newInstance(cryptoObject, authenticationCallback,this@Login)
+                    fingerprintDialog = FingerprintDialogFragment.newInstance(cryptoObject, authenticationCallback,this@Login)
                     fingerprintDialog.show(supportFragmentManager, FingerprintDialogFragment.TAG)
 
                     fingerprintDialog.startAuthentication(cipher, fingerprintManager)
@@ -203,7 +205,7 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
             override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
                 Log.d("onResponse validateLogin",response.body().toString())
                 try{
-
+                    fingerprintDialog.dismiss()
                     if (response.isSuccessful && response.body()!!.success) {
                         //val result = .usuario
                         startHomeActivity(response.body()!!)
@@ -224,6 +226,7 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
 
                         //Toast.makeText(applicationContext,"${response.body()!!.message}",Toast.LENGTH_SHORT).show()
                     }
+
                 }catch (e: Exception){
                     Log.d("ERRvalidateLogin",e.printStackTrace().toString())
                 }
@@ -359,7 +362,7 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
     }
 
     override fun onAuthenticationSuccess() {
-        Toast.makeText(this@Login,"Autenticación exitosa.",Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@Login,"Huella reconocida.",Toast.LENGTH_SHORT).show()
         doLogin()
 
     }
@@ -367,16 +370,19 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
     override fun onAuthenticationError(errorMessage: String) {
         binding.btnLogin.isEnabled = true
         Toast.makeText(this@Login,"Error de autenticación: ${errorMessage}",Toast.LENGTH_SHORT).show()
+        fingerprintDialog.dismiss()
     }
 
     override fun onAuthenticationHelp(helpMessage: String) {
         Toast.makeText(this@Login,"onAuthenticationHelp",Toast.LENGTH_SHORT).show()
+
     }
 
     override fun onAuthenticationFailed() {
         runOnUiThread {
             binding.btnLogin.isEnabled = true
             Toast.makeText(this, "Autenticación fallida", Toast.LENGTH_SHORT).show()
+
         }
     }
 
