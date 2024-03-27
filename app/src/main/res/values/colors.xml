@@ -2,7 +2,7 @@
 <resources>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
+    <color name="purple_700">#535D81</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
@@ -13,4 +13,5 @@
     <color name="colorB8BECC">#B8BECC</color>
     <color name="colorE0E0E0">#E0E0E0</color>
     <color name="color95AFD2">#95AFD2</color>
+    <color name="color535D81">#535D81</color>
 </resources>
