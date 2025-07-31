@@ -8,7 +8,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object ApiClient {
+object ApiClient { 
 
     private var retrofit: Retrofit? = null
     private const val BASE_URL = "http://ec2-3-146-206-205.us-east-2.compute.amazonaws.com:8080/WSSimSwapping-1.0/simswapping/"
