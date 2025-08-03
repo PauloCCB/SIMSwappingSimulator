@@ -11,7 +11,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ApiClient { 
 
     private var retrofit: Retrofit? = null
-    private const val BASE_URL = "http://ec2-3-146-206-205.us-east-2.compute.amazonaws.com:8080/WSSimSwapping-1.0/simswapping/"
+    private const val BASE_URL = "https://simswapping-cgaugcf7b5g7eda4.westus-01.azurewebsites.net/simswapping/"
     private val BA_USER = "admin"
     private val BA_PASS = "12345678"
 

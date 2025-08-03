@@ -144,9 +144,8 @@ class RegisterAccount : AppCompatActivity(), GetAdvertisingIdListener {
                         txtCC.text.toString(),
                         latitud.toString(),
                         longitud.toString(),
-                        txtPIN.text.toString(),
-                        null,
-                        imei
+                        imei,
+                        txtPIN.text.toString()
 
                     )
                     val call = ApiClient.simSwappingService.registerAccount(objBodyAccount)

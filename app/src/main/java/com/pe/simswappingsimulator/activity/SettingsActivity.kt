@@ -100,7 +100,7 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
             longitud = "",
             estado = ""
         )*/
-        val call = ApiClient.simSwappingService.getLocations(generalExtras.getInt("idUsuario"))
+        val call = ApiClient.simSwappingService.getLocations(generalExtras.getInt("id_usuario"))
 
         call!!.enqueue(object : Callback<ResponseUbicaciones> {
 
@@ -222,7 +222,7 @@ class SettingsActivity : AppCompatActivity(), GoogleMap.OnMapClickListener,Googl
             //Registramos ubicación
             val objUbicacion = Ubicaciones(
                 id_ubicacion = 0,
-                id_usuario = generalExtras.getInt("idUsuario"),
+                id_usuario = generalExtras.getInt("id_usuario"),
                 latitud = latitud,
                 longitud = longitud,
                 estado = ""

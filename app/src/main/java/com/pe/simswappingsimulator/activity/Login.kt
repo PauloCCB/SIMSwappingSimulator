@@ -23,7 +23,7 @@ import com.google.android.gms.location.LocationServices
 import com.pe.simswappingsimulator.components.GetAdvertisingIdListener
 import com.pe.simswappingsimulator.components.GetAdvertisingIdTask
 import com.pe.simswappingsimulator.databinding.ActivityLoginBinding
-import com.pe.simswappingsimulator.model.BodyLogin
+import com.pe.simswappingsimulator.model.Loginn
 import com.pe.simswappingsimulator.model.ResponseAccount
 import com.pe.simswappingsimulator.module.ApiClient
 import com.pe.simswappingsimulator.services.SimSwappingService
@@ -186,17 +186,12 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
     }
 
     private fun doLogin() {
-        val bodyLogin = BodyLogin(
-            null,
-            null,
-            null,
-            null,
+        val bodyLogin =Loginn(
             binding.etCreditCard.text.toString(),
             binding.etPassword.text.toString(),
             latitude,
             longitude,
             imei,
-            phoneNumber
         )
 
         val call = ApiClient.simSwappingService.validateLogin(bodyLogin)
