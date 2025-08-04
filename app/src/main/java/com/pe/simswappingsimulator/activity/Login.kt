@@ -86,6 +86,10 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
 
         if (!checkLocationPermission()) {
             requestPermission()
+        } else {
+            Log.d("DEBUG_LOCATION", "Permisos OK, solicitando ubicación...")
+        phoneNumber = UtilsShared.getPhoneNumber(this)
+        requestLocation()
         }
 
         phoneNumber = UtilsShared.getPhoneNumber(this)
@@ -108,11 +112,11 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
         binding.tvCreateAccount.setOnClickListener {
             val intent = Intent(this@Login, RegisterAccount::class.java)
             startActivity(intent)
-            //overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
         }
 
         binding.btnLogin.setOnClickListener {
             binding.btnLogin.isEnabled = false
+
             keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
             fingerprintManager = getSystemService(Context.FINGERPRINT_SERVICE) as FingerprintManager
 
@@ -129,7 +133,6 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
                     fingerprintDialog.startAuthentication(cipher, fingerprintManager)
 
                 }else {
-
                     CustomConfirmationDialog(this@Login).showConfirmationDialog(
                         UtilsShared.CONFIRMATION_TITLE,
                         "Es necesario que cuente con un sensor de huella digital.",
@@ -137,11 +140,8 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
                     ) {
                         binding.btnLogin.isEnabled = true
                     }
-                    // El dispositivo no tiene un sensor de huella digital o no hay huellas registradas
-                    //Toast.makeText(this, "No hay un sensor de huella digital o no hay huellas registradas", Toast.LENGTH_SHORT).show()
                 }
             }
-
 
         }
     }
@@ -282,16 +282,20 @@ class Login : AppCompatActivity(),AuthenticationResultListener, GetAdvertisingId
     @SuppressLint("MissingPermission")
     private fun requestLocation() {
 
+        Log.d("DEBUG_LOCATION", "Solicitando ubicación...")
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
                 location?.let {
                     latitude = String.format("%.8f", location.latitude)
                     longitude = String.format("%.8f", location.longitude)
 
+
+                    Log.d("DEBUG_LOCATION", "✅ Ubicación obtenida: LAT=$latitude, LON=$longitude")
                     //latitude = location.latitude
                     //longitude = location.longitude
 
                 } ?: run {
+                    Log.d("DEBUG_LOCATION", "❌ Ubicación es null")
                     Toast.makeText(this, "Ubicación no disponible", Toast.LENGTH_SHORT).show()
                 }
             }

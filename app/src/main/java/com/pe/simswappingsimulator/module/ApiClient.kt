@@ -11,7 +11,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ApiClient { 
 
     private var retrofit: Retrofit? = null
-    private const val BASE_URL = "https://simswapping-cgaugcf7b5g7eda4.westus-01.azurewebsites.net/simswapping/"
+    private const val BASE_URL = "https://simmm-bxbdftfsd2hud4as.westus-01.azurewebsites.net/simswapping/"
+
     private val BA_USER = "admin"
     private val BA_PASS = "12345678"
 
@@ -21,6 +22,7 @@ object ApiClient {
     //private const val BASE_URL = "http://localhost:8080/" //PRD
     val gson: Gson = GsonBuilder()
         .setLenient() // Esto permite JSON no estricto
+        .setPrettyPrinting()
         .create()
 
     fun getClient(username: String, password: String): Retrofit {

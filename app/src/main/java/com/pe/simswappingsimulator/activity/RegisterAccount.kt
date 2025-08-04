@@ -136,52 +136,50 @@ class RegisterAccount : AppCompatActivity(), GetAdvertisingIdListener {
 
             with(binding) {
 
-                if(validateData()) {
-                    val objBodyAccount = BodyAccount(
-                        txtDNI.text.toString(),
-                        txtNombre.text.toString(),
-                        txtApellido.text.toString(),
-                        txtCC.text.toString(),
-                        latitud.toString(),
-                        longitud.toString(),
-                        imei,
-                        txtPIN.text.toString()
+                val objBodyAccount = BodyAccount(
+                    txtDNI.text.toString(),
+                    txtNombre.text.toString(),
+                    txtApellido.text.toString(),
+                    txtCC.text.toString(),
+                    latitud.toString(),
+                    longitud.toString(),
+                    imei,
+                    txtPIN.text.toString()
+                )
 
-                    )
-                    val call = ApiClient.simSwappingService.registerAccount(objBodyAccount)
+                val call = ApiClient.simSwappingService.registerAccount(objBodyAccount)
 
-                    call!!.enqueue(object : Callback<ResponseAccount> {
+                call!!.enqueue(object : Callback<ResponseAccount> {
 
-                        override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
+                    override fun onResponse(call: Call<ResponseAccount>, response: Response<ResponseAccount>) {
 
-                            if (response.isSuccessful ) {
-                                //Toast.makeText(applicationContext,response.body()!!.message,Toast.LENGTH_SHORT).show()
+                        if (response.isSuccessful) {
 
-                                val confirmationDialog = CustomConfirmationDialog(this@RegisterAccount)
-
-                                confirmationDialog.showConfirmationDialog(
-                                    UtilsShared.CONFIRMATION_TITLE,
-                                    response.body()!!.message,
-                                    "Ok"
-                                ) {
-                                    startLoginActivity()
-                                }
-
-                            }else {
-                                Log.d("error","Error: ${response.message()}")
-                                Toast.makeText(applicationContext,"Error: ${response}",Toast.LENGTH_SHORT).show()
+                            val confirmationDialog = CustomConfirmationDialog(this@RegisterAccount)
+                            confirmationDialog.showConfirmationDialog(
+                                UtilsShared.CONFIRMATION_TITLE,
+                                response.body()!!.message,
+                                "Ok"
+                            ) {
+                                startLoginActivity()
                             }
-                        }
 
-                        override fun onFailure(call: Call<ResponseAccount>, t: Throwable) {
-                            Log.d("error","Failure: ${t.printStackTrace()}")
-                            Toast.makeText(applicationContext,"Failure: ${t.message}",Toast.LENGTH_SHORT).show()
+                        } else {
+                            val errorMessage = try {
+                                response.body()?.message ?: "Error desconocido"
+                            } catch (e: Exception) {
+                                "Error al procesar respuesta: ${response.code()}"
+                            }
+
+                            Toast.makeText(applicationContext, "Error: $errorMessage", Toast.LENGTH_SHORT).show()
                         }
-                    })
-                }
+                    }
+
+                    override fun onFailure(call: Call<ResponseAccount>, t: Throwable) {
+                        Toast.makeText(applicationContext, "Fallo de conexión: ${t.message}", Toast.LENGTH_LONG).show()
+                    }
+                })
             }
-
-
         }
     }
 
